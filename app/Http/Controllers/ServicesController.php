@@ -9,14 +9,17 @@ class ServicesController extends Controller
 {
     protected $base_url;
 
-    public function _contruct(){
-        $this->base_url =  env('API_BASE_URL');   
+    public function __construct()
+    {
+        $this->base_url = env('API_BASE_URL');
     }
 
-    public function list(){
-        $response = Http::get('http://localhost/gestion_abonnements_api/api/services.php');
-        $data['services'] = $response->successful() ? $response->json() : [];
 
-        return view('home_', $data);
+    public function services()
+    {
+        $response = Http::get($this->base_url . '/api/services.php');
+        $services = $response->successful() ? $response->json() : [];
+
+        return view('nos_services', ['services' => $services]);
     }
 }

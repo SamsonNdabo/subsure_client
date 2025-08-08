@@ -9,15 +9,15 @@
     </style>
 </head>
 <body>
-    <h1 style="text-align:center;">Contrat #{{ $contrat['reference'] ?? $contrat['id'] }}</h1>
+    <h1 style="text-align:center;">Contrat #{{ $contrat[0]['reference']}}</h1>
 
     <div class="content">
-        <p><strong>Client :</strong> {{ $contrat['id_client'] }}</p>
-        <p><strong>Date de signature :</strong> {{ $contrat['date_signature'] ?? 'N/A' }}</p>
-        <p><strong>Date de début :</strong> {{ $contrat['date_debut'] }}</p>
-        <p><strong>Date de fin :</strong> {{ $contrat['date_fin'] }}</p>
-        <p><strong>Prix :</strong> {{ $contrat['prix_contrat'] }} $</p>
-        <p><strong>Statut :</strong> {{ $contrat['status'] }}</p>
+        <p><strong>Client :</strong> {{ $contrat[0]['id_client'] }}</p>
+        <p><strong>Date de signature :</strong> {{ $contrat[0]['date_signature'] ?? 'N/A' }}</p>
+        <p><strong>Date de début :</strong> {{ $contrat[0]['date_debut'] }}</p>
+        <p><strong>Date de fin :</strong> {{ $contrat[0]['date_fin'] }}</p>
+        <p><strong>Prix :</strong> {{ $contrat[0]['prix_contrat'] }} $</p>
+        <p><strong>Statut :</strong> {{ $contrat[0]['status'] }}</p>
     </div>
 
     <hr>

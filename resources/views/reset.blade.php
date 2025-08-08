@@ -4,8 +4,7 @@
 <section class="bg-light">
     <div class="page-header text-center bg-light py-5 shadow-sm rounded-4">
         <div class="container">
-            <h1 class="page-title mb-0">Connexion</h1>
-            <p class="text-muted">Accédez à votre compte</p>
+            <h1 class="page-title mb-0">Réinitialiser le mot de passe</h1>
         </div>
     </div>
 
@@ -18,29 +17,28 @@
                 </div>
             @endif
         @endforeach
-
         <div class="row justify-content-center">
             <div class="col-md-5">
                 <div class="card shadow rounded-4 border-0">
                     <div class="card-body p-4">
-                        <h4 class="text-center mb-4">Se connecter</h4>
-                        <form method="POST" action="{{route('Login')}}">
+                        <form method="POST" action="{{ route('password.update') }}">
                             @csrf
+                            <input type="hidden" name="token" value="{{ $token }}">
+                            
                             <div class="mb-3">
                                 <label for="email">Adresse email</label>
-                                <input type="email" name="email" id="email" class="form-control" required>
+                                <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}" required>
                             </div>
-                            <div class="mb-4">
-                                <label for="password">Mot de passe</label>
+                            <div class="mb-3">
+                                <label for="password">Nouveau mot de passe</label>
                                 <input type="password" name="password" id="password" class="form-control" required>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 rounded-pill">Connexion</button>
+                            <div class="mb-4">
+                                <label for="password_confirmation">Confirmer le mot de passe</label>
+                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill">Réinitialiser</button>
                         </form>
-
-                        <div class="text-center mt-3">
-                            <a href="{{ route('password.request') }}">Mot de passe oublié ?</a><br>
-                            <a href="{{ route('register') }}">Créer un compte</a>
-                        </div>
                     </div>
                 </div>
             </div>

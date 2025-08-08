@@ -1,13 +1,18 @@
 @extends('Layouts.app')
 
 @section('content')
-    <div class="page-header text-center">
+    <div class="page-header text-center bg-light py-5 shadow-sm rounded-4">
         <div class="container">
-            <h1 class="page-title">Mes Contrats</h1>
+            @php
+                $client = Session::get('user');
+            @endphp
+            <h1 class="page-title mb-0">Bienvenue <strong class="text-primary">{{ $client['nom'] }}</strong></h1>
+            <p class="text-muted">Mes Contrats</p>
         </div>
     </div>
-
     <div class="container pt-5 pb-5">
+        @include('clients.navigation')
+
         <div class="row">
             @foreach ($contrat as $item)
                 <div class="col-md-6">
@@ -69,12 +74,12 @@
                                 <h6>Conditions générales</h6>
                                 <p>
                                     Ce contrat vous permet de bénéficier du service pendant {{ $duree }} mois.
-                                    Le renouvellement est automatique sauf résiliation avant échéance.
+                                    Le rappel de renouvellement est automatique une semaine avant échéance.
                                 </p>
                             </div>
                             <div class="modal-footer">
                                 <button class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                <a href="{{ route('contrat.pdf', $item['id']) }}" class="btn btn-primary" target="_blank">
+                                <a href="{{ route('contrat.pdf', $client['ID_']) }}" class="btn btn-primary" target="_blank">
                                     Télécharger PDF
                                 </a>
                             </div>
@@ -82,6 +87,8 @@
                     </div>
                 </div>
             @endforeach
+
         </div>
     </div>
+    
 @endsection

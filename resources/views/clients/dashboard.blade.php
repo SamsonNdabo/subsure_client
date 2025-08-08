@@ -87,7 +87,9 @@
                 <a class="nav-link" href="{{ url('/clients/MesTransact/'.$client['ID_']) }}">
                     <i class="icon-wallet"></i> Mes Transactions
                 </a>
-                <a class="nav-link" href="{{ url('MonProfil') }}">
+                
+                <a class="nav-link" href="{{ url('/clients/MonProfil/'.$client['ID_'])  }}
+">
                     <i class="icon-user"></i> Mon Profil
                 </a>
             </nav>
@@ -96,10 +98,10 @@
             <div class="row g-4 mb-5">
                 @php
                     $boxes = [
-                        ['count' => $stats['actifs'] ?? 0, 'label' => 'Abonnements Actifs', 'color' => 'success'],
-                        ['count' => $stats['expires'] ?? 0, 'label' => 'Abonnements Expirés', 'color' => 'danger'],
-                        ['count' => $stats['attente'] ?? 0, 'label' => 'En Attente', 'color' => 'warning'],
-                        ['count' => $stats['contrats'] ?? 0, 'label' => 'Contrats', 'color' => 'primary'],
+                        ['count' => $stats['actifs'] ?? 0, 'label' => 'Abonnements Actifs', 'color' => 'white'],
+                        ['count' => $stats['expires'] ?? 0, 'label' => 'Abonnements Expirés', 'color' => 'white'],
+                        ['count' => $stats['attente'] ?? 0, 'label' => 'En Attente', 'color' => 'white'],
+                        ['count' => $stats['contrats'] ?? 0, 'label' => 'Contrats', 'color' => 'white'],
                     ];
                 @endphp
 

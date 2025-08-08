@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf; // <-- Assure-toi que ce package est installé
+use Barryvdh\DomPDF\Facade\Pdf; 
 
 class PaiementController extends Controller
 {
@@ -24,19 +24,15 @@ class PaiementController extends Controller
 
     public function facture($id)
     {
-        $response = Http::get($this->base_url . "/api/controller/paiement/get_facture_by_id.php?id_paiement=" . $id);
+        $response = Http::get($this->base_url . "/api/controller/paiement/get_paiement_by_client.php?idclient=" . $id);
 
         if ($response->successful()) {
-            $data = $response->json();
-
-            if (isset($data['paiement'][0])) {
-                $paiement = $data['paiement'][0];
-                $pdf = Pdf::loadView('pdf.facture', compact('paiement'));
-
-                return $pdf->stream('facture_' . $paiement['transaction_id'] . '.pdf');
+                $paiement = $ $response->json();
+                $pdf = Pdf::loadView('clients/facture', ['contrat' => $paiement]);
+                // Génére le PDF depuis la vue dédiée
+                return $pdf->download('facture' . $id . '.pdf');
             }
-        }
-
         return redirect()->back()->with('error', 'Impossible de générer la facture.');
     }
+
 }

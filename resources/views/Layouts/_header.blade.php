@@ -44,12 +44,14 @@
                 <nav class="main-nav">
                     <ul class="menu sf-arrows">
                         <li class="active"><a href="{{ url('/') }}">Accueil</a></li>
-                        <li><a href="#services_pages">Nos Services</a></li>
-                        <li><a href="#offres_page">Nos Offres</a></li>
-                        <li><a href="#offres_page">Actualites</a></li>
-                        <li><a href="#">Mon Compte</a></li>
-
-
+                        <li><a href="{{ url('nos_services') }}">Nos Services</a></li>
+                        <li><a href="{{ url('nos_offres') }}">Nos Offres</a></li>
+                        <li><a href="{{ url('actualites') }}">Actualites</a></li>
+                        @if (Session::has('user'))
+								<li><a href="{{ url('/clients/dashboard') }}">Mon Compte</a></li>
+							@else
+								<li><a href="{{ url('/logReg') }}">Login</a></li>
+							@endif
                     </ul>
                 </nav>
             </div>

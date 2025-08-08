@@ -17,7 +17,7 @@ class ContratController extends Controller
 
     public function listcontrat($id)
     {
-        $response = Http::get("{$this->base_url}/api/controller/contrat/get_contrat_by_user.php?id_client={$id}");
+        $response = Http::get("{$this->base_url}/api/controller/contrat/get_contrat_by_client.php?id_client={$id}");
         $data['contrat'] = $response->successful() ? $response->json() : [];
         // dd($data);
         return view('clients/MesContrat', $data);
@@ -26,13 +26,13 @@ class ContratController extends Controller
     public function telechargerPDF($id)
 {
     // Appel API distante
-    $response = Http::get(env('API_BASE_URL') . '/api/contrat.php?where id='.$id);
+    $response = Http::get("{$this->base_url}/api/controller/contrat/get_contrat_by_client.php?id_client={$id}");
 //TODO//
     if ($response->successful() && $response->json()) {
         $contrat = $response->json();
-
+        // dd($contrat);
         // Génére le PDF depuis la vue dédiée
-        $pdf = Pdf::loadView('pdf.contrat', ['contrat' => $contrat]);
+        $pdf = Pdf::loadView('clients/contrat', ['contrat' => $contrat]);
 
         return $pdf->download('contrat'.$id.'.pdf');
     }

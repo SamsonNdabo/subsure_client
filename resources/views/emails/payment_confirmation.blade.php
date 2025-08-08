@@ -21,15 +21,15 @@
         <h3 style="color: #333;">🧾 Détails du paiement :</h3>
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
             <tr>
-                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f9f9f9;">🔐 Abonnement ID</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f9f9f9;"> Abonnement ID</td>
                 <td style="padding: 10px; border: 1px solid #e0e0e0;">{{ $abonnementId }}</td>
             </tr>
             <tr>
-                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f9f9f9;">💵 Montant payé</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f9f9f9;">Montant payé</td>
                 <td style="padding: 10px; border: 1px solid #e0e0e0;">${{ number_format($prix, 2) }}</td>
             </tr>
             <tr>
-                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f9f9f9;">📅 Date</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f9f9f9;">Date</td>
                 <td style="padding: 10px; border: 1px solid #e0e0e0;">{{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}</td>
             </tr>
         </table>

@@ -4,8 +4,8 @@
 <section class="bg-light">
     <div class="page-header text-center bg-light py-5 shadow-sm rounded-4">
         <div class="container">
-            <h1 class="page-title mb-0">Connexion</h1>
-            <p class="text-muted">Accédez à votre compte</p>
+            <h1 class="page-title mb-0">Mot de passe oublié</h1>
+            <p class="text-muted">Recevez un lien de réinitialisation</p>
         </div>
     </div>
 
@@ -18,28 +18,21 @@
                 </div>
             @endif
         @endforeach
-
         <div class="row justify-content-center">
             <div class="col-md-5">
                 <div class="card shadow rounded-4 border-0">
                     <div class="card-body p-4">
-                        <h4 class="text-center mb-4">Se connecter</h4>
-                        <form method="POST" action="{{route('Login')}}">
+                        <form method="POST" action="{{ route('password.email') }}">
                             @csrf
                             <div class="mb-3">
                                 <label for="email">Adresse email</label>
                                 <input type="email" name="email" id="email" class="form-control" required>
                             </div>
-                            <div class="mb-4">
-                                <label for="password">Mot de passe</label>
-                                <input type="password" name="password" id="password" class="form-control" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100 rounded-pill">Connexion</button>
+                            <button type="submit" class="btn btn-warning w-100 rounded-pill">Envoyer le lien</button>
                         </form>
 
                         <div class="text-center mt-3">
-                            <a href="{{ route('password.request') }}">Mot de passe oublié ?</a><br>
-                            <a href="{{ route('register') }}">Créer un compte</a>
+                            <a href="{{ route('Login') }}">Retour à la connexion</a>
                         </div>
                     </div>
                 </div>

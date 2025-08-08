@@ -2,11 +2,12 @@
 
 @section('content')
 <main class="main">
-    <div class="page-header text-center">
+    <div class="page-header text-center bg-light py-5 shadow-sm rounded-4">
         <div class="container">
-            <h1 class="page-title">À Propos de Nous<span>Qui sommes-nous ?</span></h1>
-        </div><!-- End .container -->
-    </div><!-- End .page-header -->
+            <h1 class="page-title mb-0">A propos de Nous<strong class="text-primary"></strong></h1>
+            <p class="text-muted">Qui sommes-nous</p>
+        </div>
+    </div>
 
     <div class="page-content">
         <div class="container py-5">

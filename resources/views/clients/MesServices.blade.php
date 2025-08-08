@@ -12,14 +12,18 @@
         @endif
     @endforeach
 
-    <div class="page-header text-center">
+    <div class="page-header text-center bg-light py-5 shadow-sm rounded-4">
         <div class="container">
-            <h1 class="page-title">Mes Services</h1>
+            @php
+                $client = Session::get('user');
+            @endphp
+            <h1 class="page-title mb-0">Bienvenue <strong class="text-primary">{{ $client['nom'] }}</strong></h1>
+            <p class="text-muted">Mes Abonnements</p>
         </div>
     </div>
-
     <div class="container pt-5 pb-5">
         <div class="row justify-content-center">
+            @include('clients.navigation')
             @forelse($abonnement['abonnements'] as $item)
                 @php
                     $date_debut = \Carbon\Carbon::parse($item['date_debut']);
@@ -32,7 +36,7 @@
 
                 <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
                     <div class="card h-100 shadow-sm border-0 rounded-4">
-                        <img src="assets/images/products/product-.jpg" class="card-img-top rounded-top-4" alt="Service image">
+                        <img src={{ asset('assets/images/home/bg.jpg') }} class="card-img-top rounded-top-4" alt="Service image">
                         <div class="card-body text-center p-3 d-flex flex-column">
                             <h5 class="card-title mb-2">{{ $item['Nom_Service'] }}</h5>
                             <p class="card-text small">{{ $item['designation'] }}</p>
@@ -64,7 +68,7 @@
                             <div class="modal-body">
                                 <div class="row">
                                     <div class="col-md-5">
-                                        <img src="assets/images/products/product-.jpg" class="img-fluid rounded-3" alt="Image">
+                                        <img src="{{ asset('assets/images/home/bg.jpg') }}" class="img-fluid rounded-3" alt="Image">
                                     </div>
                                     <div class="col-md-7">
                                         <h6>{{ $item['Nom_Service'] }}</h6>
@@ -101,7 +105,9 @@
                 </div>
 
             @empty
-                <p class="text-center">Aucun abonnement disponible.</p>
+                <div class="col-12 text-center">
+                    <div class="alert alert-warning">Aucune abonnement disponible.</div>
+                </div>
             @endforelse
         </div>
     </div>

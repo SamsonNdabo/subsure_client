@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AbonnementController;
 use App\Http\Controllers\PaiementController;
+use App\Http\Controllers\ProfilController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\Dashboardcontroller;
@@ -17,6 +18,8 @@ use App\Http\Controllers\ContratController;
 use App\Http\Controllers\PayementController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\CheckoutController;
+
+use App\Http\Controllers\SabonnerController;
 use Illuminate\Support\Facades\Session;
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +46,15 @@ Route::get('/details/{id}', [HomeController::class, 'detailsService']);
 Route::get('/logReg', function () {
     return view('logReg');
 });
+Route::get('/actualites', function () {
+    return view('actualites');
+});
+Route::get('/nos_offres', function () {
+    return view('nos_offres');
+});
+Route::get('/nos_offres', function () {
+    return view('nos_offres');
+});
 
 Route::post('/logReg', [AuthController::class, 'login'])->name('Login');
 Route::get('/logout', function () {
@@ -50,30 +62,40 @@ Route::get('/logout', function () {
     Session::flush();
     return redirect('/logReg')->with('success', 'Déconnexion réussie.');
 })->name('logout');
+Route::post('/details/{id}', [HomeController::class, 'handlePost'])->name('details.post');
+Route::get('/details/{id}', [HomeController::class, 'detailsService'])->name('details');
+
+Route::get('/abonnement/success', [SabonnerController::class, 'success'])->name('abonnements.success');
 
 //session client
 Route::middleware(['check.session'])->group(function () {
+    Route::get('/stripe/checkout/{plan_id}/{abonnement_id}/{service_id}/{prix}/{interval}/{entreprise_id}', [App\Http\Controllers\SabonnerController::class, 'checkout'])->name('payment.checkout');
+
+    Route::get('/paiement_stripe/checkout_cancel', [SabonnerController::class, 'cancel'])->name('stripe.cancel');
+
     Route::get('/clients/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
-    // Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/contrat/pdf/{id}', [ContratController::class, 'telechargerPDF'])->name('contrat.pdf');
-    Route::get('/clients/MonProfil', function () {
-        return view('clients/MonProfil');
-    });
+    Route::get('/clients/contrat/pdf/{id}', [ContratController::class, 'telechargerPDF'])->name('contrat.pdf');
+
     Route::get('/clients/MesServices/{id}', [AbonnementController::class, 'listabonnement'])->name('abonnement');
     Route::get('/clients/MesTransact/{id}', [PaiementController::class, 'listpaiement']);
     Route::get('/clients/MesContrat/{id}', [ContratController::class, 'listcontrat']);
-    Route::get('/clients/MesTransact/{id}/facture', [PaiementController::class, 'facture'])->name('paiement.facture');
+    Route::get('/clients/MonProfil/{id}', [ProfilController::class, 'profil']);
+
+    Route::get('/clients/facture/{id}/facture', [PaiementController::class, 'facture'])->name('paiement.facture');
     //stripe renouvellement 
     Route::get('/paiement_stripe/checkout_success', [CheckoutController::class, 'success'])->name('stripe.success');
     Route::get('/paiement_stripe/checkout_cancel', [CheckoutController::class, 'cancel'])->name('stripe.cancel');
     Route::get('/paiement_stripe/checkout/{client_id}/{plan_id}/{abonnement_id}/{service_id}/{prix}/{email}', [CheckoutController::class, 'checkout'])->name('stripe.checkout');
-
-    Route::get('paiement_stripe/payement', function () {
-    return view('paiement_stripe/payement');
-});
 });
 
+Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
+Route::post('/register', [AuthController::class, 'register'])->name('register');
 
+Route::get('/forgot-password', [AuthController::class, 'showForgotForm'])->name('password.request');
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
+
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
 
 
@@ -84,6 +106,7 @@ Route::get('/about', function () {
 Route::get('/contact', function () {
     return view('contact');
 });
-
+Route::get('/nos_services', [ServicesController::class, 'services']);
+Route::get('/nos_services/{id}', [HomeController::class, 'detailsService'])->name('nos_services.details');
 
 Route::get('/', [HomeController::class, 'home']);

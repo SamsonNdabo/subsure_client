@@ -99,7 +99,6 @@
 
     <div class="footer mt-4 gray">
         Merci d'avoir utilisé SubSure. <br>
-        Cette facture est générée automatiquement et n’a pas besoin de signature.
     </div>
 </body>
 </html>

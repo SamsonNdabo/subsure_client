@@ -4,6 +4,16 @@
     <main class="main">
         <!-- SLIDER SECTION -->
         <div class="intro-section bg-lighter pt-5 pb-6">
+             {{-- Messages flash --}}
+        @foreach (['success', 'error', 'warning', 'info'] as $msg)
+            @if(session($msg))
+                <div class="alert alert-{{ $msg == 'error' ? 'danger' : $msg }} alert-dismissible fade show" role="alert">
+                    {{ session($msg) }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                </div>
+            @endif
+        @endforeach
+
             <div class="container">
                 <div class="intro-slider owl-carousel owl-simple owl-light owl-nav-inside mb-5" data-toggle="owl"
                     data-owl-options='{
@@ -17,26 +27,26 @@
 
                     {{-- Slide 1 --}}
                     <div class="intro-slide position-relative" style="height: 600px; overflow: hidden;">
-                        <img src="{{ asset('assets/images/home/bg.jpg') }}" alt="Bienvenue"
+                        <img src="{{ asset('assets/images/home/chat-bg.jpg') }}" alt="Bienvenue"
                             style="object-fit: cover; width: 100%; height: 100%;">
                         <div
-                            class="intro-content position-absolute top-50 start-50 translate-middle text-white text-center">
-                            <h3 class="intro-subtitle fs-4 text-light mb-2">Bienvenue sur <span
+                            class="intro-content position-absolute top-50 start-50 translate-middle text-black text-center">
+                            <h3 class="intro-subtitle fs-4 text-black mb-2">Bienvenue sur <span
                                     class="text-warning">SubSure</span></h3>
-                            <h2 class="intro-title fs-1 fw-bold">Gérez vos abonnements, services<br>et contrats facilement
+                            <h2 class="intro-title fs-1 fw-bold text-black ">Gérez vos abonnements, services<br>et contrats facilement
                             </h2>
                         </div>
                     </div>
 
                     {{-- Slide 2 --}}
                     <div class="intro-slide position-relative" style="height: 600px; overflow: hidden;">
-                        <img src="{{ asset('assets/images/home/bg.jpg') }}" alt="Abonnements"
+                        <img src="{{ asset('assets/images/home/contact.jpg') }}" alt="Abonnements"
                             style="object-fit: cover; width: 100%; height: 100%;">
                         <div
                             class="intro-content position-absolute top-50 start-50 translate-middle text-white text-center">
                             <h3 class="intro-subtitle fs-4 text-light mb-2">Tout en un clic</h3>
                             <h2 class="intro-title fs-1 fw-bold">Abonnez-vous à nos services<br>en toute simplicité</h2>
-                            <a href="#" class="btn btn-primary mt-4 px-4 py-2">S'ABONNER</a>
+                            <a href="#services" class="btn btn-primary mt-4 px-4 py-2">VOIR PLUS</a>
                         </div>
                     </div>
 
@@ -46,9 +56,9 @@
                             style="object-fit: cover; width: 100%; height: 100%;">
                         <div
                             class="intro-content position-absolute top-50 start-50 translate-middle text-white text-center">
-                            <h3 class="intro-subtitle fs-4 text-light mb-2">Services de Nettoyage</h3>
+                            <h3 class="intro-subtitle fs-4 text-light mb-2">Suivi des Contrats et Abonnements Clients</h3>
                             <h2 class="intro-title fs-1 fw-bold">Pour entreprises<br>et particuliers</h2>
-                            <a href="#" class="btn btn-outline-light mt-4 px-4 py-2">S'ABONNER</a>
+                            <a href="#offres" class="btn btn-outline-light mt-4 px-4 py-2">VOIR PLUS</a>
                         </div>
                     </div>
 
@@ -59,7 +69,7 @@
         <!-- SERVICES SECTION -->
         <section class="pt-5 pb-6 bg-white">
             <div class="container">
-                <div class="heading heading-center mb-5">
+                <div class="heading heading-center mb-5" id="services">
                     <h2 class="title-lg text-dark fw-bold">Nos Services</h2>
                     <p class="text-muted mt-2">Découvrez une sélection variée de services adaptés à vos besoins.</p>
                 </div>
@@ -82,7 +92,7 @@
                         <div class="product product-11 text-center shadow-sm p-3 bg-light rounded-3">
                             <figure class="product-media mb-3">
                                 <a href="{{ url('/details/' . $service['id']) }}">
-                                    <img src="{{ asset('assets/images/home/bg.jpg') }}" alt="Image du Service"
+                                    <img src="{{ asset('assets/images/home/ab_2.jpg') }}" alt="Image du Service"
                                         class="img-fluid rounded">
                                 </a>
                             </figure>
@@ -108,7 +118,7 @@
 
         <!-- Nos Offres -->
         <section class="offers-section py-5 bg-white">
-    <div class="container text-center">
+    <div class="container text-center"id="offres">
         <h3 class="mb-5 fs-2 fw-bold">Nos Offres</h3>
         <div class="row g-4">
             <!-- Offre Essentielle -->
