@@ -116,7 +116,7 @@ class SabonnerController extends Controller
         ));
 
         // 6. Rediriger vers dashboard avec succès
-        return redirect()->route('dashboard')
+        return redirect()->route('paiement_success')
             ->with('success', 'Votre abonnement a été créé avec succès. Un email de confirmation vous a été envoyé.');
     }
 }

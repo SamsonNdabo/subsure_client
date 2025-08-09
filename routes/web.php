@@ -79,7 +79,8 @@ Route::middleware(['check.session'])->group(function () {
     Route::get('/clients/MesContrat/{id}', [ContratController::class, 'listcontrat']);
     Route::get('/clients/MonProfil/{id}', [ProfilController::class, 'profil']);
 
-    Route::get('/clients/facture/{id}/facture', [PaiementController::class, 'facture'])->name('paiement.facture');
+    Route::get('/clients/facture/{id}', [PaiementController::class, 'facture'])->name('paiement.facture');
+    
     //stripe renouvellement 
     Route::get('/paiement_stripe/checkout_success', [CheckoutController::class, 'success'])->name('stripe.success');
     Route::get('/paiement_stripe/checkout_cancel', [CheckoutController::class, 'cancel'])->name('stripe.cancel');
@@ -95,6 +96,9 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
+Route::get('/paiement_success', function () {
+    return view('paiement_success');
+})->name('paiement_success');
 
 
 

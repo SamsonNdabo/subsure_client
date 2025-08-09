@@ -15,7 +15,14 @@
     <div class="container pt-5 pb-5">
         {{-- Menu latéral --}}
         @include('clients.navigation')
-
+        @foreach (['success', 'error', 'warning', 'info'] as $msg)
+        @if(session($msg))
+            <div class="alert alert-{{ $msg == 'error' ? 'danger' : $msg }} alert-dismissible fade show">
+                {{ session($msg) }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+    @endforeach
         <div class="row">
             @forelse ($paiement as $index => $item)
                 <div class="col-md-6">
@@ -82,7 +89,7 @@
                                 </ul>
                             </div>
                             <div class="modal-footer">
-                                <a href="{{ route('paiement.facture', $item['id_paiement']) }}" target="_blank"
+                                <a href="{{ route('paiement.facture', $client['ID_'])  }}" target="_blank"
                                     class="btn btn-primary">
                                     Télécharger Facture
                                 </a>

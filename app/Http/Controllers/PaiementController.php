@@ -18,6 +18,7 @@ class PaiementController extends Controller
     public function listpaiement($id)
     {
         $response = Http::get($this->base_url . "/api/controller/paiement/get_paiement_by_client.php?idclient=" . $id);
+        // dd($response->json());
         $data['paiement'] = $response->successful() ? $response->json() : [];
         return view('clients/MesTransact', $data);
     }
@@ -25,14 +26,20 @@ class PaiementController extends Controller
     public function facture($id)
     {
         $response = Http::get($this->base_url . "/api/controller/paiement/get_paiement_by_client.php?idclient=" . $id);
-
+    
         if ($response->successful()) {
-                $paiement = $ $response->json();
-                $pdf = Pdf::loadView('clients/facture', ['contrat' => $paiement]);
-                // Génére le PDF depuis la vue dédiée
-                return $pdf->download('facture' . $id . '.pdf');
+            $paiement = $response->json();
+    
+            if (empty($paiement)) {
+                return redirect()->back()->with('error', "Aucun paiement trouvé pour ce client.");
             }
+    
+            $pdf = Pdf::loadView('clients.facture', ['paiement' => $paiement]);
+            return $pdf->download('facture_' . $id . '.pdf');
+        }
+    
         return redirect()->back()->with('error', 'Impossible de générer la facture.');
     }
-
+    
+    
 }

@@ -109,7 +109,7 @@
             En attente de paiement de l'abonnement
         </div>
         <div class="content">
-            <h1>Bonjour {{ $nomClient }}??chers client,</h1>
+            <h1>Bonjour {{ $nomClient }},</h1>
             <p>Merci pour votre abonnement au plan <strong>#{{ $planId }}</strong>.</p>
             <p>Voici les détails :</p>
             <ul class="details-list">

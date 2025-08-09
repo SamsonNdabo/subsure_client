@@ -2,10 +2,14 @@
 
 @section('content')
 
-<div class="page-header text-center bg-light py-5 shadow-sm rounded-4 mb-5">
+{{-- HEADER AVEC IMAGE --}}
+<div class="hero-section text-center text-white d-flex align-items-center justify-content-center shadow-lg mb-5" 
+     style="background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('{{ asset('assets/images/home/ab_5.jpeg') }}') center/cover no-repeat; min-height: 350px; border-radius: 1rem;">
     <div class="container">
-        <h1 class="page-title mb-1 text-primary fw-bold" style="letter-spacing: 0.08em;">Détails du service</h1>
-        <p class="text-dark fs-5 fw-semibold fst-italic">
+        <h1 class="fw-bold display-5 mb-3" style="letter-spacing: 0.08em;">
+            Détails du service
+        </h1>
+        <p class="fs-4 fst-italic fw-semibold">
             {{ $service['designation'] ?? $service[0]['designation'] ?? 'Service inconnu' }}
         </p>
     </div>
@@ -36,6 +40,24 @@
             </p>
         </div>
     </section>
+    @if($entreprise)
+    <section class="mb-5">
+        <h3 class="section-title">
+            <i class="bi bi-building text-primary me-2"></i> Informations sur l'entreprise
+        </h3>
+        <div class="p-4 bg-white rounded-4 shadow-sm" style="max-width: 900px;">
+            <h4 class="fw-bold">{{ $entreprise['nom_entreprise'] ?? 'Nom non disponible' }}</h4>
+            <p>{{ $entreprise['id_national'] ?? 'Description non disponible' }}</p>
+            <p><strong>Adresse:</strong> {{ $entreprise['adresse'] ?? 'Non renseignée' }}</p>
+            <p><strong>Ville:</strong> {{ $entreprise['ville'] ?? 'Non renseignée' }}</p>
+            <p><strong>Code Postal:</strong> {{ $entreprise['code_postal'] ?? 'Non renseignée' }}</p>
+            <p><strong>Telephone:</strong> {{ $entreprise['telephone'] ?? 'Non renseignée' }}</p>
+            <p><strong>Email:</strong> {{ $entreprise['email'] ?? 'Non renseignée' }}</p>
+            {{-- ajoute d’autres champs utiles ici --}}
+        </div>
+    </section>
+@endif
+
 
     {{-- Plans disponibles --}}
     <section class="mb-5">
@@ -45,20 +67,20 @@
         <div class="plans-grid">
             @foreach($plansForService as $plan)
                 @php $pid = $plan['id_plan'] ?? $plan['id']; @endphp
-                <div class="card pricing-card rounded-4 shadow border-0 d-flex flex-column">
+                <div class="card pricing-card rounded-4 shadow border-0">
                     <div class="card-body d-flex flex-column justify-content-between h-100 text-center p-4">
                         <div>
-                            <h5 class="card-title text-primary fw-bold mb-3" style="letter-spacing: 0.05em;">
+                            <h5 class="card-title text-primary fw-bold mb-3">
                                 {{ $plan['designation'] ?? $plan['nom'] ?? 'Plan inconnu' }}
                             </h5>
-                            <p class="text-muted small fst-italic mb-3" style="min-height: 3rem;">
+                            <p class="text-muted small fst-italic mb-3">
                                 {{ $plan['description'] ?? 'Description non disponible.' }}
                             </p>
-                            <h4 class="text-success fw-bold mb-4 display-5" style="font-weight: 900;">
+                            <h4 class="text-success fw-bold mb-4 display-6">
                                 {{ number_format($plan['prix'], 2) }} $
                             </h4>
                             @if(isset($avantagesParPlan[$pid]) && count($avantagesParPlan[$pid]) > 0)
-                                <ul class="list-unstyled text-start small text-dark mb-4" style="line-height: 1.5;">
+                                <ul class="list-unstyled text-start small text-dark mb-4">
                                     @foreach($avantagesParPlan[$pid] as $avantage)
                                         <li>✅ {{ $avantage }}</li>
                                     @endforeach
@@ -81,38 +103,40 @@
         </div>
     </section>
 
-    {{-- Services liés --}}
-    @if(!empty($servicesEntreprise))
-    <section class="mb-5">
-        <h3 class="section-title">
-            <i class="bi bi-building text-primary me-2"></i> Autres services de cette entreprise
-        </h3>
-        <div class="row g-4">
-            @foreach($servicesEntreprise as $s)
-                @php
-                    $currentServiceId = $service['id_service'] ?? $service['id'];
-                    $otherServiceId = $s['id_service'] ?? $s['id'];
-                @endphp
-                @if($otherServiceId != $currentServiceId)
-                <div class="col-md-3 col-sm-6">
-                    <div class="card service-card border-0 rounded-4 shadow-sm h-100 hover-shadow transition-hover">
-                        <div class="card-body text-center p-3 d-flex flex-column justify-content-between">
-                            <h6 class="fw-semibold text-primary mb-2" style="letter-spacing: 0.03em;">{{ $s['designation'] }}</h6>
-                            <p class="text-muted small mb-3" style="min-height: 4rem;">
-                                {{ \Illuminate\Support\Str::limit($s['description'], 80) }}
-                            </p>
-                            <a href="{{ route('details', ['id' => $otherServiceId, 'entreprise_id' => $s['entreprise_id']]) }}"
-                               class="btn btn-outline-primary btn-sm rounded-pill px-3 mt-auto fw-semibold">
-                                Voir détails
-                            </a>
-                        </div>
+  {{-- Services liés --}}
+@if(!empty($servicesEntreprise))
+<section class="mb-5">
+    <h3 class="section-title">
+        <i class="bi bi-building text-primary me-2"></i> Autres services de cette entreprise
+    </h3>
+    <div class="row g-4">
+        @foreach($servicesEntreprise as $s)
+            @php
+                // $service est un tableau associatif dans le contrôleur corrigé
+                $currentServiceId = $service['id'] ?? null;
+                $otherServiceId = $s['id'];
+            @endphp
+            @if($otherServiceId != $currentServiceId)
+            <div class="col-md-3 col-sm-6">
+                <div class="card service-card border-0 rounded-4 shadow-sm h-100 hover-shadow transition-hover">
+                    <div class="card-body text-center p-3 d-flex flex-column justify-content-between">
+                        <h6 class="fw-semibold text-primary mb-2" style="letter-spacing: 0.03em;">{{ $s['designation'] }}</h6>
+                        <p class="text-muted small mb-3" style="min-height: 4rem;">
+                            {{ \Illuminate\Support\Str::limit($s['description'], 80) }}
+                        </p>
+                        <a href="{{ route('details', ['id' => $otherServiceId, 'entreprise_id' => $s['entreprise_id']]) }}"
+                           class="btn btn-outline-primary btn-sm rounded-pill px-3 mt-auto fw-semibold">
+                            Voir détails
+                        </a>
                     </div>
                 </div>
-                @endif
-            @endforeach
-        </div>
-    </section>
-    @endif
+            </div>
+            @endif
+        @endforeach
+    </div>
+</section>
+@endif
+
 
     {{-- Conditions Générales --}}
     <section>
@@ -131,8 +155,8 @@
                         En vous abonnant, vous acceptez nos conditions générales de service. 
                         Celles-ci précisent vos droits et responsabilités en tant qu’utilisateur.
                         <br><br>
-                        @if(!empty($articles))
-                            @foreach($articles as $article)
+                        @if(!empty($articlesService))
+                            @foreach($articlesService as $article)
                                 <h6 class="fw-bold">{{ $article['titre'] }}</h6>
                                 <p>{{ $article['contenu'] }}</p>
                             @endforeach
@@ -192,7 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-interval').value = button.getAttribute('data-interval');
     });
 
-    // Optionnel : validation CGU avant submit (HTML5 required est suffisant en principe)
     document.getElementById('subscribeForm').addEventListener('submit', e => {
         if (!document.getElementById('cguCheckbox').checked) {
             e.preventDefault();
@@ -203,46 +226,26 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <style>
-    /* Même style que précédemment pour pro & responsive */
+    .hero-section {
+        border-radius: 1rem;
+    }
+
     .plans-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
         gap: 1.75rem;
     }
-
     .pricing-card {
-        display: flex;
-        flex-direction: column;
         height: 500px;
-        transition: box-shadow 0.3s ease, transform 0.3s ease;
-        border-radius: 1rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
         cursor: default;
+        border-radius: 1rem;
     }
     .pricing-card:hover {
-        box-shadow: 0 0.7rem 1.4rem rgba(13, 110, 253, 0.25);
         transform: translateY(-6px);
+        box-shadow: 0 0.7rem 1.4rem rgba(13, 110, 253, 0.25);
         cursor: pointer;
     }
-
-    .pricing-card .card-body {
-        flex: 1 1 auto;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 2rem 1.5rem;
-    }
-
-    .pricing-card button.btn {
-        margin-top: auto;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        padding: 0.7rem 2.5rem;
-        transition: background-color 0.3s ease;
-    }
-    .pricing-card button.btn:hover {
-        background-color: #0047b3;
-    }
-
     .section-title {
         font-weight: 700;
         font-size: 1.7rem;
@@ -254,12 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
         align-items: center;
         gap: 0.6rem;
     }
-
-    section > div.p-5 p {
-        color: #222222 !important;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
     .service-card {
         transition: box-shadow 0.3s ease, transform 0.3s ease;
         border-radius: 1rem;
@@ -270,7 +267,6 @@ document.addEventListener('DOMContentLoaded', () => {
         transform: translateY(-5px);
         cursor: pointer;
     }
-
     .btn-success {
         background-color: #198754;
         border-color: #198754;
@@ -279,7 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
         background-color: #146c43;
         border-color: #146c43;
     }
-
     @media (max-width: 576px) {
         .plans-grid {
             grid-template-columns: 1fr;

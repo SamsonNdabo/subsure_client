@@ -3,7 +3,7 @@
 @section('content')
 <div class="page-header text-center">
     <div class="container">
-        <h1 class="page-title">Paiement <span>Succès</span></h1>
+        <h1 class="page-title">En attente de <span>Paiement</span></h1>
     </div>
 </div>
 
@@ -20,7 +20,7 @@
             Votre abonnement a été enregistré avec succès.
         </p>
         <p>
-            Vous pouvez désormais profiter de toutes les fonctionnalités liées à votre plan.
+            Vous pouvez désormais payer si valide sinon annuller.
         </p>
         <a href="{{ url('/') }}" class="btn btn-outline-primary mt-4">Retour à l'accueil</a>
     </div>
