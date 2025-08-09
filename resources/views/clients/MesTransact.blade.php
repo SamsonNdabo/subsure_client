@@ -54,10 +54,6 @@
                                     data-bs-target="#paiementModal{{ $index }}">
                                     Voir détails
                                 </button>
-                                <a href="{{ route('paiement.facture', $item['id_paiement']) }}" target="_blank"
-                                    class="btn btn-primary btn-sm px-3">
-                                    Télécharger
-                                </a>
                             </div>
                         </div>
                     </div>

@@ -2,157 +2,146 @@
 
 @section('content')
 
-{{-- HEADER AVEC IMAGE --}}
-<div class="hero-section text-center text-white d-flex align-items-center justify-content-center shadow-lg mb-5" 
-     style="background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('{{ asset('assets/images/home/ab_5.jpeg') }}') center/cover no-repeat; min-height: 350px; border-radius: 1rem;">
-    <div class="container">
-        <h1 class="fw-bold display-5 mb-3" style="letter-spacing: 0.08em;">
-            Détails du service
-        </h1>
-        <p class="fs-4 fst-italic fw-semibold">
-            {{ $service['designation'] ?? $service[0]['designation'] ?? 'Service inconnu' }}
-        </p>
+{{-- HEADER IMAGE FULL WIDTH --}}
+<div class="bg-dark position-relative mb-5" style="height: 320px;">
+    <img src="{{ asset('assets/images/home/ab_5.jpeg') }}" alt="Service Image" class="w-100 h-100 object-fit-cover opacity-75">
+    <div class="position-absolute top-50 start-50 translate-middle text-center text-white px-3">
+        <h1 class="display-4 fw-bold">{{ $service['designation'] ?? $service[0]['designation'] ?? 'Service inconnu' }}</h1>
+        <p class="fs-5 fst-italic opacity-75">{{ $service['description'] ?? $service[0]['description'] ?? '' }}</p>
     </div>
 </div>
 
-<div class="container pb-5">
+<div class="container">
 
     {{-- Messages flash --}}
     @if(session('success'))
-        <div class="alert alert-success rounded-4 shadow-sm">
+        <div class="alert alert-success rounded-2">
             {{ session('success') }}
         </div>
     @endif
     @if(session('error'))
-        <div class="alert alert-danger rounded-4 shadow-sm">
+        <div class="alert alert-danger rounded-2">
             {{ session('error') }}
         </div>
     @endif
 
-    {{-- Description --}}
-    <section class="mb-5">
-        <h3 class="section-title">
-            <i class="bi bi-info-circle-fill text-primary me-2"></i> Description
-        </h3>
-        <div class="p-5 bg-white rounded-4 shadow-sm mx-auto" style="max-width: 900px;">
-            <p class="text-dark fs-5 mb-0" style="line-height: 1.8; font-size: 1.25rem; font-weight: 500;">
-                {{ $service['description'] ?? $service[0]['description'] ?? 'Pas de description disponible.' }}
-            </p>
-        </div>
-    </section>
-    @if($entreprise)
-    <section class="mb-5">
-        <h3 class="section-title">
-            <i class="bi bi-building text-primary me-2"></i> Informations sur l'entreprise
-        </h3>
-        <div class="p-4 bg-white rounded-4 shadow-sm" style="max-width: 900px;">
-            <h4 class="fw-bold">{{ $entreprise['nom_entreprise'] ?? 'Nom non disponible' }}</h4>
-            <p>{{ $entreprise['id_national'] ?? 'Description non disponible' }}</p>
-            <p><strong>Adresse:</strong> {{ $entreprise['adresse'] ?? 'Non renseignée' }}</p>
-            <p><strong>Ville:</strong> {{ $entreprise['ville'] ?? 'Non renseignée' }}</p>
-            <p><strong>Code Postal:</strong> {{ $entreprise['code_postal'] ?? 'Non renseignée' }}</p>
-            <p><strong>Telephone:</strong> {{ $entreprise['telephone'] ?? 'Non renseignée' }}</p>
-            <p><strong>Email:</strong> {{ $entreprise['email'] ?? 'Non renseignée' }}</p>
-            {{-- ajoute d’autres champs utiles ici --}}
-        </div>
-    </section>
-@endif
+    <div class="row gy-5">
 
+        {{-- Colonne gauche : Description + Plans --}}
+        <div class="col-lg-7">
+            {{-- Description --}}
+            <section>
+                <h2 class="h4 text-primary mb-4">Description</h2>
+                <div class="bg-white p-4 rounded shadow-sm">
+                    <p class="mb-0" style="line-height:1.6;">
+                        {{ $service['description'] ?? $service[0]['description'] ?? 'Pas de description disponible.' }}
+                    </p>
+                </div>
+            </section>
 
-    {{-- Plans disponibles --}}
-    <section class="mb-5">
-        <h3 class="section-title">
-            <i class="bi bi-box-seam text-primary me-2"></i> Plans Disponibles
-        </h3>
-        <div class="plans-grid">
-            @foreach($plansForService as $plan)
-                @php $pid = $plan['id_plan'] ?? $plan['id']; @endphp
-                <div class="card pricing-card rounded-4 shadow border-0">
-                    <div class="card-body d-flex flex-column justify-content-between h-100 text-center p-4">
-                        <div>
-                            <h5 class="card-title text-primary fw-bold mb-3">
-                                {{ $plan['designation'] ?? $plan['nom'] ?? 'Plan inconnu' }}
-                            </h5>
-                            <p class="text-muted small fst-italic mb-3">
-                                {{ $plan['description'] ?? 'Description non disponible.' }}
-                            </p>
-                            <h4 class="text-success fw-bold mb-4 display-6">
-                                {{ number_format($plan['prix'], 2) }} $
-                            </h4>
-                            @if(isset($avantagesParPlan[$pid]) && count($avantagesParPlan[$pid]) > 0)
-                                <ul class="list-unstyled text-start small text-dark mb-4">
-                                    @foreach($avantagesParPlan[$pid] as $avantage)
-                                        <li>✅ {{ $avantage }}</li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <p class="text-muted fst-italic mb-4">Aucun avantage spécifié.</p>
-                            @endif
+            {{-- Plans --}}
+            <section class="mt-5">
+                <h2 class="h4 text-primary mb-4">Plans disponibles</h2>
+                <div class="row g-4">
+                    @foreach($plansForService as $plan)
+                        @php $pid = $plan['id_plan'] ?? $plan['id']; @endphp
+                        <div class="col-md-6">
+                            <div class="card shadow-sm rounded-3 h-100">
+                                <div class="card-body d-flex flex-column h-100">
+                                    <h5 class="card-title fw-bold text-primary">{{ $plan['designation'] ?? $plan['nom'] ?? 'Plan inconnu' }}</h5>
+                                    <p class="text-muted small fst-italic mb-3">
+                                        {{ $plan['description'] ?? 'Description non disponible.' }}
+                                    </p>
+                            
+                                    @if(isset($avantagesParPlan[$pid]) && count($avantagesParPlan[$pid]) > 0)
+                                        <ul class="list-unstyled small mb-3 flex-grow-1">
+                                            @foreach($avantagesParPlan[$pid] as $avantage)
+                                                <li>✅ {{ $avantage }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <p class="text-muted fst-italic mb-3 flex-grow-1">Aucun avantage spécifié.</p>
+                                    @endif
+                            
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fs-4 fw-semibold text-success">{{ number_format($plan['prix'], 2) }} $</span>
+                                        <button class="btn btn-primary btn-sm rounded-pill"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modal-abonnement"
+                                            data-plan-id="{{ $pid }}"
+                                            data-prix="{{ $plan['prix'] }}"
+                                            data-interval="{{ $plan['intervalle'] ?? 30 }}">
+                                            S'abonner
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            
                         </div>
-                        <button class="btn btn-primary rounded-pill px-4 mt-auto"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modal-abonnement"
-                                data-plan-id="{{ $pid }}"
-                                data-prix="{{ $plan['prix'] }}"
-                                data-interval="{{ $plan['intervalle'] ?? 30 }}">
-                            S'abonner
-                        </button>
-                    </div>
+                    @endforeach
                 </div>
-            @endforeach
+            </section>
         </div>
-    </section>
 
-  {{-- Services liés --}}
-@if(!empty($servicesEntreprise))
-<section class="mb-5">
-    <h3 class="section-title">
-        <i class="bi bi-building text-primary me-2"></i> Autres services de cette entreprise
-    </h3>
-    <div class="row g-4">
-        @foreach($servicesEntreprise as $s)
-            @php
-                // $service est un tableau associatif dans le contrôleur corrigé
-                $currentServiceId = $service['id'] ?? null;
-                $otherServiceId = $s['id'];
-            @endphp
-            @if($otherServiceId != $currentServiceId)
-            <div class="col-md-3 col-sm-6">
-                <div class="card service-card border-0 rounded-4 shadow-sm h-100 hover-shadow transition-hover">
-                    <div class="card-body text-center p-3 d-flex flex-column justify-content-between">
-                        <h6 class="fw-semibold text-primary mb-2" style="letter-spacing: 0.03em;">{{ $s['designation'] }}</h6>
-                        <p class="text-muted small mb-3" style="min-height: 4rem;">
-                            {{ \Illuminate\Support\Str::limit($s['description'], 80) }}
-                        </p>
-                        <a href="{{ route('details', ['id' => $otherServiceId, 'entreprise_id' => $s['entreprise_id']]) }}"
-                           class="btn btn-outline-primary btn-sm rounded-pill px-3 mt-auto fw-semibold">
-                            Voir détails
-                        </a>
-                    </div>
+        {{-- Colonne droite : Entreprise + Services liés --}}
+        <div class="col-lg-5">
+
+            {{-- Informations entreprise --}}
+            @if($entreprise)
+            <section class="mb-5">
+                <h2 class="h5 text-primary mb-3">Informations sur l'entreprise</h2>
+                <div class="bg-white p-4 rounded shadow-sm">
+                    <h5 class="fw-bold mb-2">{{ $entreprise['nom_entreprise'] ?? 'Nom non disponible' }}</h5>
+                    <p class="mb-1"><strong>ID National:</strong> {{ $entreprise['id_national'] ?? '-' }}</p>
+                    <p class="mb-1"><strong>Adresse:</strong> {{ $entreprise['adresse'] ?? '-' }}</p>
+                    <p class="mb-1"><strong>Ville:</strong> {{ $entreprise['ville'] ?? '-' }}</p>
+                    <p class="mb-1"><strong>Code Postal:</strong> {{ $entreprise['code_postal'] ?? '-' }}</p>
+                    <p class="mb-1"><strong>Téléphone:</strong> {{ $entreprise['telephone'] ?? '-' }}</p>
+                    <p class="mb-0"><strong>Email:</strong> {{ $entreprise['email'] ?? '-' }}</p>
                 </div>
-            </div>
+            </section>
             @endif
-        @endforeach
-    </div>
-</section>
-@endif
 
+            {{-- Services liés --}}
+            @if(!empty($servicesEntreprise))
+            <section>
+                <h2 class="h5 text-primary mb-3">Autres services de cette entreprise</h2>
+                <div class="list-group shadow-sm rounded">
+                    @foreach($servicesEntreprise as $s)
+                        @php
+                            $currentServiceId = $service['id'] ?? null;
+                            $otherServiceId = $s['id'];
+                        @endphp
+                        @if($otherServiceId != $currentServiceId)
+                            <a href="{{ route('details', ['id' => $otherServiceId, 'entreprise_id' => $s['entreprise_id']]) }}" class="list-group-item list-group-item-action rounded-2">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1 text-primary">{{ $s['designation'] }}</h6>
+                                </div>
+                                <small class="text-muted">{{ \Illuminate\Support\Str::limit($s['description'], 80) }}</small>
+                            </a>
+                        @endif
+                    @endforeach
+                </div>
+            </section>
+            @endif
+
+        </div>
+    </div>
 
     {{-- Conditions Générales --}}
-    <section>
-        <h3 class="section-title">
-            <i class="bi bi-file-earmark-text-fill text-primary me-2"></i> Conditions Générales
-        </h3>
+    <section class="mt-5">
+        <h2 class="h5 text-primary mb-3">Conditions Générales</h2>
         <div class="accordion" id="accordionCGU">
-            <div class="accordion-item rounded-4 shadow-sm border-0">
+            <div class="accordion-item rounded shadow-sm border-0">
                 <h2 class="accordion-header" id="headingCGU">
-                    <button class="accordion-button fw-semibold rounded-4" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCGU" aria-expanded="true" aria-controls="collapseCGU">
+                    <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCGU" aria-expanded="true" aria-controls="collapseCGU">
                         Lire les conditions générales du service
                     </button>
                 </h2>
                 <div id="collapseCGU" class="accordion-collapse collapse show" aria-labelledby="headingCGU" data-bs-parent="#accordionCGU">
                     <div class="accordion-body text-secondary" style="line-height: 1.6;">
-                        En vous abonnant, vous acceptez nos conditions générales de service. 
+                        En vous abonnant, vous acceptez nos conditions générales de service.
                         Celles-ci précisent vos droits et responsabilités en tant qu’utilisateur.
                         <br><br>
                         @if(!empty($articlesService))
@@ -173,7 +162,7 @@
 {{-- Modal d’abonnement --}}
 <div class="modal fade" id="modal-abonnement" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 shadow">
+        <div class="modal-content rounded-3 shadow">
             <div class="modal-header border-0">
                 <h5 class="modal-title fw-bold">Confirmation d’abonnement</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
@@ -190,7 +179,7 @@
 
                     <div class="form-check mb-4">
                         <input class="form-check-input" type="checkbox" id="cguCheckbox" required>
-                        <label class="form-check-label" for="cguCheckbox" style="font-weight: 500;">
+                        <label class="form-check-label fw-semibold" for="cguCheckbox">
                             J'accepte les <a href="#collapseCGU" data-bs-toggle="collapse" style="color:#0d6efd; text-decoration: underline;">conditions générales</a>
                         </label>
                     </div>
@@ -224,62 +213,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-
-<style>
-    .hero-section {
-        border-radius: 1rem;
-    }
-
-    .plans-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
-        gap: 1.75rem;
-    }
-    .pricing-card {
-        height: 500px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        cursor: default;
-        border-radius: 1rem;
-    }
-    .pricing-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 0.7rem 1.4rem rgba(13, 110, 253, 0.25);
-        cursor: pointer;
-    }
-    .section-title {
-        font-weight: 700;
-        font-size: 1.7rem;
-        letter-spacing: 0.07em;
-        border-bottom: 3px solid #0d6efd;
-        padding-bottom: 0.3rem;
-        margin-bottom: 1.8rem;
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-    }
-    .service-card {
-        transition: box-shadow 0.3s ease, transform 0.3s ease;
-        border-radius: 1rem;
-        cursor: default;
-    }
-    .service-card:hover {
-        box-shadow: 0 0.6rem 1rem rgba(13, 110, 253, 0.25);
-        transform: translateY(-5px);
-        cursor: pointer;
-    }
-    .btn-success {
-        background-color: #198754;
-        border-color: #198754;
-    }
-    .btn-success:hover {
-        background-color: #146c43;
-        border-color: #146c43;
-    }
-    @media (max-width: 576px) {
-        .plans-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
 
 @endsection
