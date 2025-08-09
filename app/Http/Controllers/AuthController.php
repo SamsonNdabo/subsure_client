@@ -129,7 +129,7 @@ class AuthController extends Controller
                 return back()->with('success', 'Inscription réussie ! Vérifiez vos emails.');
             }
 
-            return back()->withErrors(['error' => $data['message'] ?? 'Erreur lors de l’inscription.']);
+            return back()->with('error', 'Inscription Echoué !  Email deja Utiliser.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Erreur serveur : ' . $e->getMessage()]);
         }
@@ -137,51 +137,77 @@ class AuthController extends Controller
 
     /** Mot de passe oublié **/
     public function forgotPassword(Request $request)
-    {
-        $request->validate(['email' => 'required|email']);
+{
+    $request->validate(['email' => 'required|email']);
 
-        try {
-            $response = Http::post($this->base_url . "/api/Mobile/forgetpassword.php", [
-                'email' => $request->email
-            ]);
+    try {
+        $response = Http::post($this->base_url . "/api/Mobile/forgetpassword.php", [
+            'email' => $request->email
+        ]);
 
-            $data = $response->json();
+        $data = $response->json();
 
-            if ($response->successful() && isset($data['success']) && $data['success']) {
-                Mail::to($request->email)->send(new ResetLinkMail($data['token']));
-                return redirect()->back()->with('success', 'Lien de réinitialisation envoyé.');
+        if ($response->successful() && isset($data['status']) && $data['status'] === 'success') {
+            $token = $data['data']['token'] ?? null;
+            $email = $data['data']['email'] ?? $request->email;
+
+            if (!$token) {
+                return back()->with('error', 'Token manquant dans la réponse.');
             }
 
-            return back()->withErrors(['email' => $data['message'] ?? 'Email introuvable.']);
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Erreur serveur : ' . $e->getMessage()]);
+            try {
+                Mail::to($email)->send(new ResetLinkMail($token));
+            } catch (\Exception $e) {
+                return back()->with('error', 'Erreur lors de l\'envoi du mail : ' . $e->getMessage());
+            }
+
+            return back()->with('success', 'Lien de réinitialisation envoyé. Vérifiez vos emails.');
         }
+
+        return back()->with('error', $data['message'] ?? 'Email introuvable.');
+    } catch (\Exception $e) {
+        return back()->with('error', 'Erreur serveur : ' . $e->getMessage());
     }
+}
+
 
     /** Réinitialisation **/
     public function resetPassword(Request $request)
-    {
-        $request->validate([
-            'token' => 'required',
-            'password' => 'required|confirmed|min:6'
+{
+    $request->validate([
+        'token' => 'required',
+        'password' => 'required|confirmed|min:6'
+    ]);
+
+    try {
+        $response = Http::post($this->base_url . "/api/Mobile/resetpassword.php", [
+            'token' => $request->token,
+            'password' => $request->password
         ]);
 
-        try {
-            $response = Http::post($this->base_url . "/api/Mobile/resetpassword.php", [
-                'token' => $request->token,
-                'password' => $request->password
-            ]);
+        $data = $response->json();
 
-            $data = $response->json();
+        if ($response->successful() && isset($data['status']) && $data['status'] === 'success') {
+            $email = $data['data']['email'] ?? null;
 
-            if ($response->successful() && isset($data['success']) && $data['success']) {
-                Mail::to($data['email'])->send(new ResetSuccessMail());
-                return redirect()->route('Login')->with('success', 'Mot de passe réinitialisé.');
+            if (!$email) {
+                return back()->withErrors(['error' => 'Email utilisateur manquant dans la réponse serveur.']);
             }
 
-            return back()->withErrors(['token' => $data['message'] ?? 'Lien invalide ou expiré.']);
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Erreur serveur : ' . $e->getMessage()]);
+            try {
+                Mail::to($email)->send(new ResetSuccessMail());
+            } catch (\Exception $e) {
+                // Le mail a échoué, mais le mot de passe est réinitialisé, on continue
+                return back()->withErrors(['error' => 'Mot de passe réinitialisé, mais erreur d\'envoi du mail : ' . $e->getMessage()]);
+            }
+
+            return redirect()->route('Login')->with('success', 'Mot de passe réinitialisé. Vérifiez votre email.');
         }
+
+        return back()->withErrors(['token' => $data['message'] ?? 'Lien invalide ou expiré.']);
+    } catch (\Exception $e) {
+        return back()->withErrors(['error' => 'Erreur serveur : ' . $e->getMessage()]);
     }
+}
+
 }

@@ -1,21 +1,129 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Confirmation Abonnement</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Confirmation d'abonnement - SubSure</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .email-container {
+            max-width: 600px;
+            background-color: #fff;
+            margin: 40px auto;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            border: 1px solid #e1e4e8;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #2a9d8f;
+            padding: 25px 20px 15px 20px;
+            text-align: center;
+            color: #fff;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .header img {
+            max-width: 120px;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 30px 40px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .content h1 {
+            color: #264653;
+            margin-top: 0;
+            font-weight: 700;
+            font-size: 24px;
+        }
+        .details-list {
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            list-style: none;
+        }
+        .details-list li {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        a.btn-dashboard {
+            display: inline-block;
+            background-color: #e76f51;
+            color: white !important;
+            text-decoration: none;
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(231,111,81,0.5);
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        a.btn-dashboard:hover {
+            background-color: #d65a3a;
+        }
+        .footer {
+            background-color: #f1f1f1;
+            padding: 20px 40px;
+            font-size: 13px;
+            color: #777;
+            text-align: center;
+            margin-top: 30px;
+        }
+        @media (max-width: 480px) {
+            .email-container {
+                width: 90% !important;
+                margin: 20px auto;
+                padding: 0;
+            }
+            .content {
+                padding: 20px;
+            }
+            .header {
+                font-size: 22px;
+                padding: 20px 15px 10px 15px;
+            }
+            .header img {
+                max-width: 100px;
+            }
+            a.btn-dashboard {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+        }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; background-color: #f7f9fb; padding: 30px;">
-    <div style="max-width: 600px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center;">
-        <img src="{{ asset('assets/images/logo-footer.png') }}" alt="Logo SubSure" width="150" style="margin-bottom: 20px;">
-        <h2 style="color: #2c3e50;">Merci pour votre abonnement, {{ $nom }} !</h2>
-        <p style="font-size: 16px;">Votre souscription au plan <strong>#{{ $plan_id }}</strong> a été activée avec succès.</p>
-        <table style="margin: 20px auto; border-collapse: collapse;">
-            <tr><td style="padding: 8px;">Prix :</td><td><strong>{{ $prix }} USD</strong></td></tr>
-            <tr><td style="padding: 8px;">Début :</td><td><strong>{{ $date_debut }}</strong></td></tr>
-            <tr><td style="padding: 8px;">Fin :</td><td><strong>{{ $date_fin }}</strong></td></tr>
-            <tr><td style="padding: 8px;">Statut :</td><td><strong style="color: green;">{{ ucfirst($statut) }}</strong></td></tr>
-        </table>
-        <a href="{{ route('dashboard') }}" style="display: inline-block; margin-top: 20px; background: #007bff; color: #fff; padding: 12px 24px; border-radius: 5px; text-decoration: none;">Voir mes abonnements</a>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <img src="{{ asset('assets/images/logo-footer.png') }}" alt="SubSure Logo" />
+            En attente de paiement de l'abonnement
+        </div>
+        <div class="content">
+            <h1>Bonjour {{ $nomClient }}??chers client,</h1>
+            <p>Merci pour votre abonnement au plan <strong>#{{ $planId }}</strong>.</p>
+            <p>Voici les détails :</p>
+            <ul class="details-list">
+                <li>Prix : {{ number_format($prix, 2) }} USD</li>
+                <li>Période : du {{ $dateDebut }} au {{ $dateFin }}</li>
+                <li>Statut : {{ ucfirst($statut) }}</li>
+            </ul>
+            <p>Vous pouvez consulter vos abonnements et gérer vos services en cliquant sur le bouton ci-dessous :</p>
+            <a href="{{ $lienAbonnements }}" class="btn-dashboard" target="_blank" rel="noopener">Tableau de Bord</a>
+            <p style="margin-top: 30px;">Merci de votre confiance,<br>L’équipe <strong>SubSure</strong></p>
+        </div>
+        <div class="footer">
+            &copy; {{ date('Y') }} SubSure. Tous droits réservés.
+        </div>
     </div>
 </body>
 </html>

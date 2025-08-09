@@ -10,21 +10,35 @@ class AbonnementConfirmationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $nom, $plan_id, $prix, $date_debut, $date_fin, $statut;
+   public $nomClient;
+public $planId;
+public $prix;
+public $dateDebut;
+public $dateFin;
+public $statut;
 
-    public function __construct($nom, $plan_id, $prix, $date_debut, $date_fin, $statut)
-    {
-        $this->nom = $nom;
-        $this->plan_id = $plan_id;
-        $this->prix = $prix;
-        $this->date_debut = $date_debut;
-        $this->date_fin = $date_fin;
-        $this->statut = $statut;
-    }
+public function __construct($nomClient, $planId, $prix, $dateDebut, $dateFin, $statut)
+{
+    $this->nomClient = $nomClient;
+    $this->planId = $planId;
+    $this->prix = $prix;
+    $this->dateDebut = $dateDebut;
+    $this->dateFin = $dateFin;
+    $this->statut = $statut;
+}
 
-    public function build()
-    {
-        return $this->subject('Confirmation de votre abonnement')
-            ->view('emails.abonnement_confirm');
-    }
+public function build()
+{
+    return $this->subject('Confirmation de votre abonnement Subsure')
+        ->view('emails.abonnement_confirm')
+        ->with([
+            'nomClient' => $this->nomClient,
+            'planId' => $this->planId,
+            'prix' => $this->prix,
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
+            'statut' => $this->statut,
+            'lienAbonnements' => route('dashboard')
+        ]);
+}
 }

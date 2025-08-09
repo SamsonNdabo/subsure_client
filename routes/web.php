@@ -64,14 +64,12 @@ Route::get('/logout', function () {
 })->name('logout');
 Route::post('/details/{id}', [HomeController::class, 'handlePost'])->name('details.post');
 Route::get('/details/{id}', [HomeController::class, 'detailsService'])->name('details');
-
+Route::post('/abonnement/creer', [SabonnerController::class, 'creerAbonnement'])->name('abonnement.creer');
 Route::get('/abonnement/success', [SabonnerController::class, 'success'])->name('abonnements.success');
 
 //session client
 Route::middleware(['check.session'])->group(function () {
-    Route::get('/stripe/checkout/{plan_id}/{abonnement_id}/{service_id}/{prix}/{interval}/{entreprise_id}', [App\Http\Controllers\SabonnerController::class, 'checkout'])->name('payment.checkout');
-
-    Route::get('/paiement_stripe/checkout_cancel', [SabonnerController::class, 'cancel'])->name('stripe.cancel');
+   
 
     Route::get('/clients/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::get('/clients/contrat/pdf/{id}', [ContratController::class, 'telechargerPDF'])->name('contrat.pdf');

@@ -6,8 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
-use Stripe\Stripe;
-use Stripe\Checkout\Session as StripeSession;
 use Carbon\Carbon;
 use App\Mail\AbonnementConfirmationMail;
 
@@ -20,7 +18,7 @@ class SabonnerController extends Controller
         $this->base_url = env('API_BASE_URL');
     }
 
-    public function checkout($plan_id, $abonnement_id, $service_id, $prix, $interval, $entreprise_id)
+    public function creerAbonnement(Request $request)
     {
         $client = Session::get('user');
 
@@ -28,147 +26,97 @@ class SabonnerController extends Controller
             return redirect('/logReg')->with('error', 'Veuillez vous connecter.');
         }
 
-        try {
-            Stripe::setApiKey(env('STRIPE_SECRET'));
+        // Validation des champs reçus via formulaire POST
+        $request->validate([
+            'plan_id' => 'required|integer',
+            'service_id' => 'required|integer',
+            'prix' => 'required|numeric',
+            'interval' => 'required|integer',
+            'entreprise_id' => 'required|integer',
+        ]);
 
-            $checkoutSession = StripeSession::create([
-                'line_items' => [[
-                    'price_data' => [
-                        'currency' => 'usd',
-                        'product_data' => [
-                            'name' => 'Abonnement au service #' . $service_id,
-                        ],
-                        'unit_amount' => intval(floatval($prix) * 100),
-                    ],
-                    'quantity' => 1,
-                ]],
-                'mode' => 'payment',
-                'success_url' => route('abonnements.success', [], true) . '?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => url('/'),
-                'customer_email' => $client['email'],
-                'metadata' => [
-                    'client_id' => $client['ID_'],
-                    'plan_id' => $plan_id,
-                    'abonnement_id' => $abonnement_id,
-                    'service_id' => $service_id,
-                    'prix' => $prix,
-                    'interval' => $interval,
-                    'entreprise_id' => $entreprise_id
-                ]
-            ]);
+        $plan_id = $request->input('plan_id');
+        $service_id = $request->input('service_id');
+        $prix = $request->input('prix');
+        $interval = $request->input('interval');
+        $entreprise_id = $request->input('entreprise_id');
 
-            return redirect($checkoutSession->url);
-        } catch (\Exception $e) {
-            return back()->with('error', 'Erreur Stripe : ' . $e->getMessage());
-        }
-    }
+        // 1. Récupérer la liste des abonnements actuels pour cette entreprise
+        $checkResponse = Http::get($this->base_url . '/api/abonnements.php', [
+            'entreprise_id' => $entreprise_id,
+        ]);
 
-    public function success(Request $request)
-    {
-        Stripe::setApiKey(env('STRIPE_SECRET'));
-
-        $session_id = $request->get('session_id');
-
-        if (!$session_id) {
-            return redirect('/')->with('error', 'Session Stripe manquante.');
+        if ($checkResponse->failed()) {
+            return back()->with('error', 'Impossible de vérifier les abonnements existants. Veuillez réessayer plus tard.');
         }
 
-        try {
-            $session = StripeSession::retrieve($session_id);
+        $abonnements = $checkResponse->json();
+        if (!is_array($abonnements)) {
+            return back()->with('error', 'Réponse inattendue lors de la récupération des abonnements.');
+        }
 
-            // Si paiement non réussi, on affiche erreur sans redirection
-            if (!$session || $session->payment_status !== 'paid') {
-                return view('paiement_error', ['message' => 'Paiement non validé.']);
+        // 2. Vérifier si le client a déjà un abonnement actif/en attente sur ce plan/service
+        foreach ($abonnements as $abo) {
+            if (
+                isset($abo['idclient'], $abo['id_plan'], $abo['statut']) &&
+                $abo['idclient'] === $client['ID_'] &&
+                $abo['id_plan'] == $plan_id &&
+                in_array($abo['statut'], ['actif', 'en_attente'])
+            ) {
+                return back()->with('error', 'Vous avez déjà un abonnement actif ou en attente pour ce plan/service.');
             }
+        }
 
-            $metadata = $session->metadata;
+        // 3. Préparer les données d’abonnement à envoyer à l’API
+        $date_debut = Carbon::now()->format('Y-m-d');
+        $date_fin = Carbon::now()->addDays($interval)->format('Y-m-d');
 
-            $client_id = $metadata->client_id;
-            $plan_id = $metadata->plan_id;
-            $abonnement_id = $metadata->abonnement_id;
-            $service_id = $metadata->service_id;
-            $prix = $metadata->prix;
-            $interval = $metadata->interval;
-            $entreprise_id = $metadata->entreprise_id;
+        // Générer un ID temporaire d'abonnement (exemple : timestamp) ou null si géré côté API
+        $abonnement_id = 0;
 
-            $date_debut = Carbon::now()->format('Y-m-d');
-            $date_fin = Carbon::now()->addDays($interval)->format('Y-m-d');
+        $abonnementData = [
+            'idclient'   => $client['ID_'],
+            'id_plan'    => $plan_id,
+            'prix'       => $prix,
+            'date_debut' => $date_debut,
+            'date_fin'   => $date_fin,
+            'statut'     => 'en_attente',
+            'id'         => $abonnement_id
+        ];
 
-            $abonnementData = [
-                'idclient' => $client_id,
-                'id_plan' => $plan_id,
-                'prix' => $prix,
-                'date_debut' => $date_debut,
-                'date_fin' => $date_fin,
-                'statut' => 'actif',
-                'id' => $abonnement_id
-            ];
+        $planData = [
+            'id_plan'   => $plan_id,
+            'idservice' => $service_id,
+        ];
 
-            $planData = [
-                'id_plan' => $plan_id,
-                'idservice' => $service_id,
-            ];
-
-            // Enregistrement de l’abonnement via API
-            $abonnementResponse = Http::post($this->base_url . '/api/abonnements.php?entreprise_id=' . $entreprise_id, [
+        // 4. Envoyer la requête POST à l’API pour créer l’abonnement
+        $abonnementResponse = Http::post(
+            $this->base_url . '/api/abonnements.php?entreprise_id=' . $entreprise_id,
+            [
                 'abonnement' => $abonnementData,
-                'plan' => $planData,
-            ]);
+                'plan'       => $planData,
+            ]
+        );
 
-            if (!$abonnementResponse->successful()) {
-                return view('paiement_error', ['message' => 'Erreur lors de l’enregistrement de l’abonnement : ' . $abonnementResponse->body()]);
+        if (!$abonnementResponse->successful()) {
+            if ($abonnementResponse->status() === 409) {
+                return back()->with('error', 'Vous avez déjà un abonnement actif ou en attente pour ce plan/service.');
             }
-
-            $abonnementJson = $abonnementResponse->json();
-            $abonnement_id = $abonnementJson['id'] ?? $abonnementData['id'];
-
-            if (!$abonnement_id) {
-                return view('paiement_error', ['message' => 'ID d’abonnement manquant après enregistrement.']);
-            }
-
-            // Envoi du mail de confirmation
-            $user = Session::get('user');
-            Mail::to($user['email'])->send(new AbonnementConfirmationMail(
-                $user['nom'] ?? 'Client',
-                $abonnementData['id_plan'],
-                $abonnementData['prix'],
-                $abonnementData['date_debut'],
-                $abonnementData['date_fin'],
-                $abonnementData['statut']
-            ));
-
-            // Enregistrement du paiement via API
-            $paiementData = [
-                'id_commande' => 0,
-                'id_abonnement' => $abonnement_id,
-                'date_paiement' => now()->format('Y-m-d H:i:s'),
-                'montant' => $prix,
-                'type_paiement' => 'Stripe',
-                'transaction_id' => $session->payment_intent ?? $session->id,
-                'statut' => $session->payment_status,
-            ];
-
-            $paiementResponse = Http::withHeaders([
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-            ])->post($this->base_url . '/api/controller/paiement/stripe_paiement.php', $paiementData);
-
-            dd([
-                'paiementData' => $paiementData,
-                'status_code' => $paiementResponse->status(),
-                'body' => $paiementResponse->body(),
-                'json' => $paiementResponse->json(),
-            ]);
-
-
-            if (!$paiementResponse->successful()) {
-                return view('paiement_error', ['message' => 'Erreur lors de l’enregistrement du paiement.']);
-            }
-
-            // Affiche la vue finale, pas de redirection !
-            return view('paiement_success');
-        } catch (\Exception $e) {
-            return view('paiement_error', ['message' => 'Erreur Stripe : ' . $e->getMessage()]);
+            return back()->with('error', 'Erreur lors de la création de l’abonnement : ' . $abonnementResponse->body());
         }
+
+        // 5. Envoyer un email de confirmation
+        Mail::to($client['email'])->send(new AbonnementConfirmationMail(
+            $client['nom'] ?? 'Client',
+            $plan_id,
+            $prix,
+            $date_debut,
+            $date_fin,
+            'en_attente'
+        ));
+
+        // 6. Rediriger vers dashboard avec succès
+        return redirect()->route('dashboard')
+            ->with('success', 'Votre abonnement a été créé avec succès. Un email de confirmation vous a été envoyé.');
     }
 }

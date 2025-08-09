@@ -13,7 +13,7 @@
         <div class="container py-5">
             <div class="row align-items-center">
                 <div class="col-lg-6">
-                    <img src="assets/images/home/bg.jpg" class="img-fluid rounded shadow" alt="Notre entreprise">
+                    <img src="assets/images/home/ab_4.jpeg" class="img-fluid rounded shadow" alt="Notre entreprise">
                 </div><!-- End .col-lg-6 -->
 
                 <div class="col-lg-6">

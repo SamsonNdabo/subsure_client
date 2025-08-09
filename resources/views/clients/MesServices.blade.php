@@ -89,6 +89,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+
                                 @if($item['statut_abonnement'] === 'expire')
                                     <a href="{{ route('stripe.checkout', [
                                         'client_id' => $item['client_id'],
@@ -98,6 +99,15 @@
                                         'prix' => $item['prix'],
                                         'email' => $item['email'],
                                     ]) }}" class="btn btn-primary">Renouveler</a>
+                                @elseif($item['statut_abonnement'] === 'en_attente')
+                                    <a href="{{ route('stripe.checkout', [
+                                        'client_id' => $item['client_id'],
+                                        'plan_id' => $item['id_plan'],
+                                        'abonnement_id' => $item['id_abonn'],
+                                        'service_id' => $item['id_service'],
+                                        'prix' => $item['prix'],
+                                        'email' => $item['email'],
+                                    ]) }}" class="btn btn-success">Payer</a>
                                 @endif
                             </div>
                         </div>
@@ -106,7 +116,7 @@
 
             @empty
                 <div class="col-12 text-center">
-                    <div class="alert alert-warning">Aucune abonnement disponible.</div>
+                    <div class="alert alert-warning">Aucun abonnement disponible.</div>
                 </div>
             @endforelse
         </div>

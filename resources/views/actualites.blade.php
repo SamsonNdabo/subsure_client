@@ -1,7 +1,7 @@
 @extends('Layouts.app')
 @section('content')
 <section class="blog-section py-5 bg-light">
-    <div class="container" id="actualites">
+    <div class="container">
         <div class="text-center mb-5">
             <h2 class="fw-bold">Actualités & Conseils</h2>
             <p class="text-muted mx-auto" style="max-width: 600px;">Découvrez les dernières informations, conseils pratiques et nouveautés autour de la gestion d’abonnements.</p>
@@ -11,7 +11,7 @@
             <!-- Article 1 -->
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
-                    <img src="{{ asset('assets/images/home/bg.jpg') }}" class="card-img-top" alt="Abonnements">
+                    <img src="{{ asset('assets/images/home/offre.jpeg') }}" class="card-img-top" alt="Abonnements">
                     <div class="card-body">
                         <h5 class="card-title">Pourquoi gérer vos abonnements en ligne ?</h5>
                         <p class="card-text">Les abonnements non suivis entraînent des pertes. Voici comment une bonne gestion peut vous faire économiser...</p>
@@ -23,7 +23,7 @@
             <!-- Article 2 -->
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
-                    <img src="{{ asset('assets/images/home/bg.jpg') }}" class="card-img-top" alt="Alertes">
+                    <img src="{{ asset('assets/images/home/ab_7.jpeg') }}" class="card-img-top" alt="Alertes">
                     <div class="card-body">
                         <h5 class="card-title">Comment éviter les oublis d’échéance ?</h5>
                         <p class="card-text">SubSure propose des rappels automatiques pour ne plus jamais oublier vos paiements de contrat ou de service...</p>
@@ -35,7 +35,7 @@
             <!-- Article 3 -->
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
-                    <img src="{{ asset('assets/images/home/bg.jpg') }}" class="card-img-top" alt="Erreurs à éviter">
+                    <img src="{{ asset('assets/images/home/ab_5.jpeg') }}" class="card-img-top" alt="Erreurs à éviter">
                     <div class="card-body">
                         <h5 class="card-title">Top 5 des erreurs de gestion des contrats</h5>
                         <p class="card-text">Découvrez les erreurs les plus fréquentes que font les entreprises et comment les éviter grâce à une plateforme dédiée...</p>

@@ -4,23 +4,35 @@
 
 <div class="page-header text-center bg-light py-5 shadow-sm rounded-4 mb-5">
     <div class="container">
-        <h1 class="page-title mb-1 text-primary fw-bold" style="letter-spacing: 0.05em;">Détails du service</h1>
-        <p class="text-dark fs-5 fst-normal fw-semibold">
-            {{ $service['designation'] ?? $service[0]['designation'] ?? '' }}
+        <h1 class="page-title mb-1 text-primary fw-bold" style="letter-spacing: 0.08em;">Détails du service</h1>
+        <p class="text-dark fs-5 fw-semibold fst-italic">
+            {{ $service['designation'] ?? $service[0]['designation'] ?? 'Service inconnu' }}
         </p>
     </div>
 </div>
 
 <div class="container pb-5">
 
+    {{-- Messages flash --}}
+    @if(session('success'))
+        <div class="alert alert-success rounded-4 shadow-sm">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger rounded-4 shadow-sm">
+            {{ session('error') }}
+        </div>
+    @endif
+
     {{-- Description --}}
     <section class="mb-5">
         <h3 class="section-title">
-            <i class="bi bi-info-circle text-primary me-2"></i> Description
+            <i class="bi bi-info-circle-fill text-primary me-2"></i> Description
         </h3>
         <div class="p-5 bg-white rounded-4 shadow-sm mx-auto" style="max-width: 900px;">
-            <p class="text-dark fs-5 mb-0" style="line-height: 1.9; font-size: 1.25rem; font-weight: 500;">
-                {{ $service['description'] ?? $service[0]['description'] ?? 'Pas de description disponible' }}
+            <p class="text-dark fs-5 mb-0" style="line-height: 1.8; font-size: 1.25rem; font-weight: 500;">
+                {{ $service['description'] ?? $service[0]['description'] ?? 'Pas de description disponible.' }}
             </p>
         </div>
     </section>
@@ -36,11 +48,11 @@
                 <div class="card pricing-card rounded-4 shadow border-0 d-flex flex-column">
                     <div class="card-body d-flex flex-column justify-content-between h-100 text-center p-4">
                         <div>
-                            <h5 class="card-title text-primary fw-bold mb-3" style="letter-spacing: 0.04em;">
+                            <h5 class="card-title text-primary fw-bold mb-3" style="letter-spacing: 0.05em;">
                                 {{ $plan['designation'] ?? $plan['nom'] ?? 'Plan inconnu' }}
                             </h5>
                             <p class="text-muted small fst-italic mb-3" style="min-height: 3rem;">
-                                {{ $plan['description'] ?? '' }}
+                                {{ $plan['description'] ?? 'Description non disponible.' }}
                             </p>
                             <h4 class="text-success fw-bold mb-4 display-5" style="font-weight: 900;">
                                 {{ number_format($plan['prix'], 2) }} $
@@ -55,7 +67,7 @@
                                 <p class="text-muted fst-italic mb-4">Aucun avantage spécifié.</p>
                             @endif
                         </div>
-                        <button class="btn btn-primary rounded-pill px-4 mt-auto" 
+                        <button class="btn btn-primary rounded-pill px-4 mt-auto"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modal-abonnement"
                                 data-plan-id="{{ $pid }}"
@@ -77,16 +89,20 @@
         </h3>
         <div class="row g-4">
             @foreach($servicesEntreprise as $s)
-                @if(($s['id_service'] ?? $s['id']) != ($service['id_service'] ?? $service['id']))
-                <div class="col-md-3">
-                    <div class="card service-card border-0 rounded-4 shadow-sm h-100 hover-shadow" style="transition: box-shadow 0.3s ease;">
+                @php
+                    $currentServiceId = $service['id_service'] ?? $service['id'];
+                    $otherServiceId = $s['id_service'] ?? $s['id'];
+                @endphp
+                @if($otherServiceId != $currentServiceId)
+                <div class="col-md-3 col-sm-6">
+                    <div class="card service-card border-0 rounded-4 shadow-sm h-100 hover-shadow transition-hover">
                         <div class="card-body text-center p-3 d-flex flex-column justify-content-between">
-                            <h6 class="fw-semibold text-primary" style="letter-spacing: 0.03em;">{{ $s['designation'] }}</h6>
+                            <h6 class="fw-semibold text-primary mb-2" style="letter-spacing: 0.03em;">{{ $s['designation'] }}</h6>
                             <p class="text-muted small mb-3" style="min-height: 4rem;">
                                 {{ \Illuminate\Support\Str::limit($s['description'], 80) }}
                             </p>
-                            <a href="{{ route('details', ['id' => $s['id_service'] ?? $s['id'], 'entreprise_id' => $s['entreprise_id']]) }}" 
-                               class="btn btn-outline-primary btn-sm rounded-pill px-3 mt-auto">
+                            <a href="{{ route('details', ['id' => $otherServiceId, 'entreprise_id' => $s['entreprise_id']]) }}"
+                               class="btn btn-outline-primary btn-sm rounded-pill px-3 mt-auto fw-semibold">
                                 Voir détails
                             </a>
                         </div>
@@ -101,7 +117,7 @@
     {{-- Conditions Générales --}}
     <section>
         <h3 class="section-title">
-            <i class="bi bi-file-earmark-text text-primary me-2"></i> Conditions Générales
+            <i class="bi bi-file-earmark-text-fill text-primary me-2"></i> Conditions Générales
         </h3>
         <div class="accordion" id="accordionCGU">
             <div class="accordion-item rounded-4 shadow-sm border-0">
@@ -139,14 +155,15 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body">
-                <form id="subscribeForm" novalidate>
+                <form id="subscribeForm" method="POST" action="{{ route('abonnement.creer') }}" novalidate>
                     @csrf
-                    <input type="hidden" id="modal-plan-id" name="plan_id">
+                    <input type="hidden" id="modal-plan-id" name="plan_id" value="">
                     <input type="hidden" id="abonnement_id" name="abonnement_id" value="0">
                     <input type="hidden" id="service_id" name="service_id" value="{{ $service['id'] ?? $service[0]['id'] }}">
-                    <input type="hidden" id="modal-prix" name="prix">
+                    <input type="hidden" id="modal-prix" name="prix" value="">
                     <input type="hidden" id="modal-interval" name="interval" value="30">
                     <input type="hidden" id="entreprise_id" name="entreprise_id" value="{{ $service['entreprise_id'] ?? $service[0]['entreprise_id'] }}">
+
                     <div class="form-check mb-4">
                         <input class="form-check-input" type="checkbox" id="cguCheckbox" required>
                         <label class="form-check-label" for="cguCheckbox" style="font-weight: 500;">
@@ -175,48 +192,38 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-interval').value = button.getAttribute('data-interval');
     });
 
+    // Optionnel : validation CGU avant submit (HTML5 required est suffisant en principe)
     document.getElementById('subscribeForm').addEventListener('submit', e => {
-        e.preventDefault();
-
         if (!document.getElementById('cguCheckbox').checked) {
+            e.preventDefault();
             alert('Vous devez accepter les conditions générales.');
-            return;
         }
-
-        const plan_id = encodeURIComponent(document.getElementById('modal-plan-id').value);
-        const abonnement_id = encodeURIComponent(document.getElementById('abonnement_id').value);
-        const service_id = encodeURIComponent(document.getElementById('service_id').value);
-        const prix = encodeURIComponent(document.getElementById('modal-prix').value);
-        const interval = encodeURIComponent(document.getElementById('modal-interval').value);
-        const entreprise_id = encodeURIComponent(document.getElementById('entreprise_id').value);
-
-        const url = "{{ url('/stripe/checkout') }}/" + plan_id + "/" + abonnement_id + "/" + service_id + "/" + prix + "/" + interval + "/" + entreprise_id;
-        window.location.href = url;
     });
 });
 </script>
 
 <style>
-    /* Uniformiser la taille des cards plans */
+    /* Même style que précédemment pour pro & responsive */
     .plans-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
         gap: 1.75rem;
     }
 
     .pricing-card {
         display: flex;
         flex-direction: column;
-        height: 500px; /* taille fixe pour toutes les cards */
+        height: 500px;
         transition: box-shadow 0.3s ease, transform 0.3s ease;
+        border-radius: 1rem;
+        cursor: default;
     }
     .pricing-card:hover {
-        box-shadow: 0 0.6rem 1.2rem rgba(13, 110, 253, 0.3);
-        transform: translateY(-5px);
+        box-shadow: 0 0.7rem 1.4rem rgba(13, 110, 253, 0.25);
+        transform: translateY(-6px);
         cursor: pointer;
     }
 
-    /* Contenu du card body */
     .pricing-card .card-body {
         flex: 1 1 auto;
         display: flex;
@@ -225,38 +232,58 @@ document.addEventListener('DOMContentLoaded', () => {
         padding: 2rem 1.5rem;
     }
 
-    /* Bouton aligné en bas */
     .pricing-card button.btn {
         margin-top: auto;
         font-weight: 600;
-        letter-spacing: 0.03em;
-        padding: 0.6rem 2rem;
+        letter-spacing: 0.04em;
+        padding: 0.7rem 2.5rem;
+        transition: background-color 0.3s ease;
+    }
+    .pricing-card button.btn:hover {
+        background-color: #0047b3;
     }
 
-    /* Titres sections style pro */
     .section-title {
         font-weight: 700;
-        font-size: 1.6rem;
-        letter-spacing: 0.06em;
+        font-size: 1.7rem;
+        letter-spacing: 0.07em;
         border-bottom: 3px solid #0d6efd;
-        padding-bottom: 0.25rem;
-        margin-bottom: 1.5rem;
+        padding-bottom: 0.3rem;
+        margin-bottom: 1.8rem;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
     }
 
-    /* Description text noir, visible */
     section > div.p-5 p {
         color: #222222 !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    /* Services liés hover */
-    .service-card:hover {
-        box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.25);
-        cursor: pointer;
-        transform: translateY(-4px);
+    .service-card {
         transition: box-shadow 0.3s ease, transform 0.3s ease;
+        border-radius: 1rem;
+        cursor: default;
+    }
+    .service-card:hover {
+        box-shadow: 0 0.6rem 1rem rgba(13, 110, 253, 0.25);
+        transform: translateY(-5px);
+        cursor: pointer;
+    }
+
+    .btn-success {
+        background-color: #198754;
+        border-color: #198754;
+    }
+    .btn-success:hover {
+        background-color: #146c43;
+        border-color: #146c43;
+    }
+
+    @media (max-width: 576px) {
+        .plans-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 

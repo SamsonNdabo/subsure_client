@@ -16,38 +16,45 @@
             max-width: 600px;
             background-color: #ffffff;
             margin: 40px auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
             overflow: hidden;
             border: 1px solid #e1e4e8;
         }
         .header {
             background-color: #2a9d8f;
-            padding: 20px;
-            color: #fff;
+            padding: 25px 20px 15px 20px;
             text-align: center;
-            font-size: 24px;
+            color: #fff;
+            font-size: 28px;
             font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .header img {
+            max-width: 120px;
+            margin-bottom: 10px;
         }
         .content {
-            padding: 30px 40px;
+            padding: 35px 40px;
             font-size: 16px;
             line-height: 1.5;
+            text-align: center;
         }
         .content h2 {
             color: #264653;
             margin-top: 0;
+            font-weight: 700;
         }
         .btn {
             display: inline-block;
             background-color: #e76f51;
             color: white !important;
             text-decoration: none;
-            padding: 12px 25px;
+            padding: 12px 28px;
             border-radius: 6px;
             font-weight: 600;
             margin-top: 25px;
-            box-shadow: 0 2px 6px rgba(231,111,81,0.5);
+            box-shadow: 0 2px 8px rgba(231,111,81,0.5);
             transition: background-color 0.3s ease;
         }
         .btn:hover {
@@ -55,8 +62,8 @@
         }
         .footer {
             background-color: #f1f1f1;
-            padding: 15px 40px;
-            font-size: 12px;
+            padding: 20px 40px;
+            font-size: 13px;
             color: #777;
             text-align: center;
         }
@@ -70,8 +77,15 @@
                 padding: 20px;
             }
             .header {
-                font-size: 20px;
-                padding: 15px;
+                font-size: 22px;
+                padding: 20px 15px 10px 15px;
+            }
+            .header img {
+                max-width: 100px;
+            }
+            .btn {
+                padding: 12px 22px;
+                font-size: 16px;
             }
         }
     </style>
@@ -79,6 +93,7 @@
 <body>
     <div class="email-container">
         <div class="header">
+            <img src="{{ asset('assets/images/logo-footer.png') }}" alt="SubSure Logo" />
             SubSure - Bienvenue !
         </div>
         <div class="content">

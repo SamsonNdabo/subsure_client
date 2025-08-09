@@ -52,12 +52,12 @@
 
                     {{-- Slide 3 --}}
                     <div class="intro-slide position-relative" style="height: 600px; overflow: hidden;">
-                        <img src="{{ asset('assets/images/home/bg.jpg') }}" alt="Nettoyage"
+                        <img src="{{ asset('assets/images/home/img1.jpg') }}" alt="Nettoyage"
                             style="object-fit: cover; width: 100%; height: 100%;">
                         <div
-                            class="intro-content position-absolute top-50 start-50 translate-middle text-white text-center">
-                            <h3 class="intro-subtitle fs-4 text-light mb-2">Suivi des Contrats et Abonnements Clients</h3>
-                            <h2 class="intro-title fs-1 fw-bold">Pour entreprises<br>et particuliers</h2>
+                            class="intro-content position-absolute top-50 start-50 translate-middle text-black text-center">
+                            <h3 class="intro-subtitle fs-4 text-white mb-2">Suivi des Contrats et Abonnements Clients</h3>
+                            <h2 class="intro-title fs-1 fw-bold text-black">Pour entreprises<br>et particuliers</h2>
                             <a href="#offres" class="btn btn-outline-light mt-4 px-4 py-2">VOIR PLUS</a>
                         </div>
                     </div>
@@ -200,7 +200,7 @@
             <!-- Article 1 -->
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
-                    <img src="{{ asset('assets/images/home/bg.jpg') }}" class="card-img-top" alt="Abonnements">
+                    <img src="{{ asset('assets/images/home/offre.jpeg') }}" class="card-img-top" alt="Abonnements">
                     <div class="card-body">
                         <h5 class="card-title">Pourquoi gérer vos abonnements en ligne ?</h5>
                         <p class="card-text">Les abonnements non suivis entraînent des pertes. Voici comment une bonne gestion peut vous faire économiser...</p>
@@ -212,7 +212,7 @@
             <!-- Article 2 -->
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
-                    <img src="{{ asset('assets/images/home/bg.jpg') }}" class="card-img-top" alt="Alertes">
+                    <img src="{{ asset('assets/images/home/ab_7.jpeg') }}" class="card-img-top" alt="Alertes">
                     <div class="card-body">
                         <h5 class="card-title">Comment éviter les oublis d’échéance ?</h5>
                         <p class="card-text">SubSure propose des rappels automatiques pour ne plus jamais oublier vos paiements de contrat ou de service...</p>
@@ -224,7 +224,7 @@
             <!-- Article 3 -->
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
-                    <img src="{{ asset('assets/images/home/bg.jpg') }}" class="card-img-top" alt="Erreurs à éviter">
+                    <img src="{{ asset('assets/images/home/ab_5.jpeg') }}" class="card-img-top" alt="Erreurs à éviter">
                     <div class="card-body">
                         <h5 class="card-title">Top 5 des erreurs de gestion des contrats</h5>
                         <p class="card-text">Découvrez les erreurs les plus fréquentes que font les entreprises et comment les éviter grâce à une plateforme dédiée...</p>
