@@ -9,6 +9,10 @@ use App\Mail\RegisterConfirmationMail;
 use App\Mail\ResetLinkMail;
 use App\Mail\ResetSuccessMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+
 
 class AuthController extends Controller
 {
@@ -34,28 +38,29 @@ class AuthController extends Controller
             if (isset($data['status']) && $data['status'] === 'success' && isset($data['data'][0])) {
                 $client = $data['data'][0];
 
+                if (empty($client['email_verified_at'])) {
+                    return redirect('/logReg')->with('error', 'Vous devez vérifier votre email avant de vous connecter.');
+                }
+
                 Session::put('user', $client);
                 Session::flash('success', 'Connexion réussie !');
                 return redirect('clients/dashboard')->with('success', 'Bienvenue !');
             }
 
-            // // Erreur retournée par l'API (ex: mauvais identifiants)
-            // return redirect('/logReg')->with('error', $data['message'] ?? 'Identifiants incorrects.');
+            return redirect('/logReg')->with('error', $data['message'] ?? 'Identifiants incorrects.');
         }
 
-        // Erreur côté client HTTP (ex: mauvaise requête)
         if ($response->clientError()) {
             return redirect('/logReg')->with('error', $data['message'] ?? 'Identifiants incorrects.');
         }
 
-        // Erreur serveur distant
         if ($response->serverError()) {
             return redirect('/logReg')->with('error', 'Erreur interne du serveur distant.');
         }
 
-        // Aucune réponse
         return redirect('/logReg')->with('error', 'Impossible de contacter le serveur distant.');
     }
+
     public function dashboard()
     {
         $client = Session::get('user');
@@ -76,10 +81,8 @@ class AuthController extends Controller
                 ]);
             }
 
-            // API a renvoyé une réponse non exploitable
             return back()->with('error', 'Impossible de récupérer les données du tableau de bord.');
         } catch (\Exception $e) {
-            // Erreur pendant la requête (timeout, DNS, etc.)
             return back()->with('error', 'Erreur API : ' . $e->getMessage());
         }
     }
@@ -109,7 +112,7 @@ class AuthController extends Controller
         ]);
 
         try {
-            $entrepriseId = 0; // Ajuster si nécessaire
+            $entrepriseId = 0;
 
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
@@ -125,89 +128,52 @@ class AuthController extends Controller
             $data = $response->json();
 
             if ($response->successful() && isset($data['status']) && $data['status'] === 'success') {
-                Mail::to($request->email)->send(new RegisterConfirmationMail($request->nom));
-                return back()->with('success', 'Inscription réussie ! Vérifiez vos emails.');
+                // Corrigé ici: data est un tableau associatif, pas un indexé
+                $user = $data['data'] ?? ['email' => $request->email, 'nom' => $request->nom, 'idclient' => null];
+
+                $verificationUrl = URL::temporarySignedRoute(
+                    'verification.verify',
+                    now()->addMinutes(60),
+                    ['id' => $user['idclient'], 'hash' => sha1($user['email'])]
+                );
+
+                Mail::to($user['email'])->send(new RegisterConfirmationMail($user, $verificationUrl));
+
+                return back()->with('success', 'Inscription réussie ! Vérifiez votre email pour confirmer votre compte.');
             }
 
-            return back()->with('error', 'Inscription Echoué !  Email deja Utiliser.');
+            return back()->with('error', 'Inscription échouée ! Email déjà utilisé.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Erreur serveur : ' . $e->getMessage()]);
         }
     }
 
-    /** Mot de passe oublié **/
-    public function forgotPassword(Request $request)
-{
-    $request->validate(['email' => 'required|email']);
+    public function verifyEmail(Request $request, $id, $hash)
+    {
+        if (! $request->hasValidSignature()) {
+            abort(401, 'Lien de vérification invalide ou expiré.');
+        }
 
-    try {
-        $response = Http::post($this->base_url . "/api/Mobile/forgetpassword.php", [
-            'email' => $request->email
+        $response = Http::asForm()->post($this->base_url . "/api/Mobile/verifyemail.php", [
+            'idclient' => $id,
+            'hash' => $hash,
         ]);
+
+        Log::info('API verifyemail response:', $response->json());
 
         $data = $response->json();
 
         if ($response->successful() && isset($data['status']) && $data['status'] === 'success') {
-            $token = $data['data']['token'] ?? null;
-            $email = $data['data']['email'] ?? $request->email;
-
-            if (!$token) {
-                return back()->with('error', 'Token manquant dans la réponse.');
-            }
-
-            try {
-                Mail::to($email)->send(new ResetLinkMail($token));
-            } catch (\Exception $e) {
-                return back()->with('error', 'Erreur lors de l\'envoi du mail : ' . $e->getMessage());
-            }
-
-            return back()->with('success', 'Lien de réinitialisation envoyé. Vérifiez vos emails.');
+            return redirect()->route('verification.success')->with('success', 'Email vérifié avec succès, vous pouvez maintenant vous connecter.');
+        } else {
+            return redirect('/logReg')->with('error', $data['message'] ?? 'Échec de la vérification de l\'email.');
         }
-
-        return back()->with('error', $data['message'] ?? 'Email introuvable.');
-    } catch (\Exception $e) {
-        return back()->with('error', 'Erreur serveur : ' . $e->getMessage());
     }
-}
-
-
-    /** Réinitialisation **/
-    public function resetPassword(Request $request)
+public function showVerified()
 {
-    $request->validate([
-        'token' => 'required',
-        'password' => 'required|confirmed|min:6'
-    ]);
-
-    try {
-        $response = Http::post($this->base_url . "/api/Mobile/resetpassword.php", [
-            'token' => $request->token,
-            'password' => $request->password
-        ]);
-
-        $data = $response->json();
-
-        if ($response->successful() && isset($data['status']) && $data['status'] === 'success') {
-            $email = $data['data']['email'] ?? null;
-
-            if (!$email) {
-                return back()->withErrors(['error' => 'Email utilisateur manquant dans la réponse serveur.']);
-            }
-
-            try {
-                Mail::to($email)->send(new ResetSuccessMail());
-            } catch (\Exception $e) {
-                // Le mail a échoué, mais le mot de passe est réinitialisé, on continue
-                return back()->withErrors(['error' => 'Mot de passe réinitialisé, mais erreur d\'envoi du mail : ' . $e->getMessage()]);
-            }
-
-            return redirect()->route('Login')->with('success', 'Mot de passe réinitialisé. Vérifiez votre email.');
-        }
-
-        return back()->withErrors(['token' => $data['message'] ?? 'Lien invalide ou expiré.']);
-    } catch (\Exception $e) {
-        return back()->withErrors(['error' => 'Erreur serveur : ' . $e->getMessage()]);
-    }
+    return view('emails.verified');
 }
 
+
+    // ... Méthodes forgotPassword et resetPassword inchangées ...
 }

@@ -9,13 +9,23 @@ use Illuminate\Queue\SerializesModels;
 class RegisterConfirmationMail extends Mailable
 {
     use Queueable, SerializesModels;
-    public $name;
 
-    public function __construct($name) { $this->name = $name; }
+    public $user;
+    public $verificationUrl;
+
+    public function __construct($user, $verificationUrl)
+    {
+        $this->user = $user;
+        $this->verificationUrl = $verificationUrl;
+    }
 
     public function build()
     {
-        return $this->subject('Bienvenue sur SubSure')
-            ->view('emails.register_confirmation');
+        return $this->subject('Confirmez votre adresse email - SubSure')
+            ->view('emails.register_confirmation')
+            ->with([
+                'user' => $this->user,
+                'verificationUrl' => $this->verificationUrl,
+            ]);
     }
 }

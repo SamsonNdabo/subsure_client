@@ -36,7 +36,7 @@
                 </button>
 
                 <a href="{{ url('/') }}" class="logo">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="Logo Molla">
+                    <img src="{{ asset('assets/images/logo__.png') }}" alt="Logo Molla">
                 </a>
             </div>
 
@@ -50,7 +50,7 @@
                         @if (Session::has('user'))
 								<li><a href="{{ url('/clients/dashboard') }}">Mon Compte</a></li>
 							@else
-								<li><a href="{{ url('/logReg') }}">Login</a></li>
+								<li><a href="{{ url('/register') }}">S'inscrire</a></li>
 							@endif
                     </ul>
                 </nav>

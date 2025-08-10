@@ -96,6 +96,12 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
+// Lien de vérification envoyé par mail
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
+
+// Page après verification réussie
+Route::get('/email/verified', [AuthController::class, 'showVerified'])->name('verification.success');
+
 Route::get('/paiement_success', function () {
     return view('paiement_success');
 })->name('paiement_success');

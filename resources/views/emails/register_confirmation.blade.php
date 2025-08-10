@@ -2,114 +2,24 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bienvenue sur SubSure</title>
+    <title>Vérification de votre email</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f8;
-            margin: 0;
-            padding: 0;
-            color: #333;
-        }
-        .email-container {
-            max-width: 600px;
-            background-color: #ffffff;
-            margin: 40px auto;
-            border-radius: 10px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-            overflow: hidden;
-            border: 1px solid #e1e4e8;
-        }
-        .header {
-            background-color: #2a9d8f;
-            padding: 25px 20px 15px 20px;
-            text-align: center;
-            color: #fff;
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-        .header img {
-            max-width: 120px;
-            margin-bottom: 10px;
-        }
-        .content {
-            padding: 35px 40px;
-            font-size: 16px;
-            line-height: 1.5;
-            text-align: center;
-        }
-        .content h2 {
-            color: #264653;
-            margin-top: 0;
-            font-weight: 700;
-        }
-        .btn {
-            display: inline-block;
-            background-color: #e76f51;
-            color: white !important;
-            text-decoration: none;
-            padding: 12px 28px;
-            border-radius: 6px;
-            font-weight: 600;
-            margin-top: 25px;
-            box-shadow: 0 2px 8px rgba(231,111,81,0.5);
-            transition: background-color 0.3s ease;
-        }
-        .btn:hover {
-            background-color: #d65a3a;
-        }
-        .footer {
-            background-color: #f1f1f1;
-            padding: 20px 40px;
-            font-size: 13px;
-            color: #777;
-            text-align: center;
-        }
-        @media (max-width: 480px) {
-            .email-container {
-                width: 90% !important;
-                margin: 20px auto;
-                padding: 0;
-            }
-            .content {
-                padding: 20px;
-            }
-            .header {
-                font-size: 22px;
-                padding: 20px 15px 10px 15px;
-            }
-            .header img {
-                max-width: 100px;
-            }
-            .btn {
-                padding: 12px 22px;
-                font-size: 16px;
-            }
-        }
+        body { font-family: Arial, sans-serif; background: #f4f6f8; color: #333; padding: 20px; }
+        .container { max-width: 600px; background: #fff; margin: 0 auto; padding: 30px; border-radius: 8px; }
+        a.btn { display: inline-block; padding: 12px 24px; background: #2a9d8f; color: white; text-decoration: none; border-radius: 6px; }
+        a.btn:hover { background: #21867a; }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        <div class="header">
-            <img src="{{ asset('assets/images/logo-footer.png') }}" alt="SubSure Logo" />
-            SubSure - Bienvenue !
-        </div>
-        <div class="content">
-            <h2>Bonjour {{ $name }},</h2>
-            <p>Merci de vous être inscrit sur <strong>SubSure</strong>. Nous sommes ravis de vous accueillir parmi nous !</p>
-            <p>Vous pouvez dès maintenant profiter pleinement de nos services et découvrir tout ce que nous avons à vous offrir.</p>
-            
-            <a href="{{ url('/logReg') }}" class="btn" target="_blank" rel="noopener">Connectez-Vous</a>
-
-            <p style="margin-top: 30px; font-size: 14px; color: #555;">
-                Si vous avez des questions ou besoin d’aide, n’hésitez pas à nous contacter.
-            </p>
-        </div>
-        <div class="footer">
-            &copy; {{ date('Y') }} SubSure. Tous droits réservés.
-        </div>
+    <div class="container">
+        <h1>Bonjour {{ $user['nom'] ?? 'utilisateur' }},</h1>
+        <p>Merci de vous être inscrit sur SubSure.</p>
+        <p>Veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous :</p>
+        <p>
+            <a href="{{ $verificationUrl }}" class="btn" target="_blank" rel="noopener">Vérifier mon email</a>
+        </p>
+        <p>Si vous n'avez pas créé de compte, ignorez ce message.</p>
+        <p>Merci,<br>L'équipe SubSure</p>
     </div>
 </body>
 </html>

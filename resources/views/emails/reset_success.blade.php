@@ -75,9 +75,11 @@
 </head>
 <body>
     <div class="email-container">
-        <div class="header">
-            <img src="{{ asset('assets/images/logo-footer.png') }}" alt="SubSure Logo" />
-            <div>SubSure - Mot de passe changé</div>
+        <div class="header"
+            style="background-color: #2a9d8f; padding: 30px 20px 20px 20px; text-align: center; color: #fff; font-size: 28px; font-weight: 700; letter-spacing: 1px;">
+            <img src="http://localhost/subsure.com/assets/images/logo_message.png" alt="Logo SubSure"
+                style="max-width: 120px; margin-bottom: 15px;" />
+            ubSure - Mot de passe changé
         </div>
         <div class="content">
             <h2>Votre mot de passe a été réinitialisé avec succès.</h2>

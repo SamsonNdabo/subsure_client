@@ -25,7 +25,7 @@
                         <div class="product product-11 text-center shadow-sm p-3 bg-light rounded-3">
                             <figure class="product-media mb-3">
                                 <a href="{{ url('/nos_services/' . $service['id']) }}">
-                                    <img src="{{ asset('assets/images/home/ab_2.jpg') }}" alt="Image du Service"
+                                    <img src="{{ asset('assets/images/home/home_3.png') }}" alt="Image du Service"
                                         class="img-fluid rounded">
                                 </a>
                             </figure>

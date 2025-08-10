@@ -8,9 +8,9 @@
     <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
         
         <div style="text-align: center; margin-bottom: 25px;">
-            <img src="{{ asset('assets/images/logo-footer.png') }}" alt="SubSure" style="max-width: 120px;">
+                        <img src="http://localhost/subsure.com/assets/images/logo_message.png" alt="Logo SubSure"
+ style="max-width: 120px;">
         </div>
-
         <h2 style="color: #2dce89; text-align: center;">✅ Paiement confirmé</h2>
 
         <p>Bonjour,</p>

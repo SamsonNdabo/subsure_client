@@ -1,15 +1,23 @@
 @extends('Layouts.app')
 
 @section('content')
-
-{{-- HEADER IMAGE FULL WIDTH --}}
-<div class="bg-dark position-relative mb-5" style="height: 320px;">
-    <img src="{{ asset('assets/images/home/ab_5.jpeg') }}" alt="Service Image" class="w-100 h-100 object-fit-cover opacity-75">
-    <div class="position-absolute top-50 start-50 translate-middle text-center text-white px-3">
+<div class="bg-dark position-relative mb-5" style="height: 380px; overflow: hidden;">
+    <img src="{{ asset('assets/images/home/home_2.png') }}" 
+         alt="Service Image" 
+         class="w-100 h-100" 
+         style="object-fit: contain; background-color: #000;">
+         
+    <!-- Overlay sombre -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0, 0, 0, 0.4);"></div>
+    
+    <!-- Contenu texte -->
+    <div class="position-absolute top-50 start-50 translate-middle text-center text-white px-3" 
+         style="text-white: 0 0 5px rgba(0,0,0,0.8); max-width: 90%;">
         <h1 class="display-4 fw-bold">{{ $service['designation'] ?? $service[0]['designation'] ?? 'Service inconnu' }}</h1>
-        <p class="fs-5 fst-italic opacity-75">{{ $service['description'] ?? $service[0]['description'] ?? '' }}</p>
+        <p class="fs-5 fst-italic">{{ $service['description'] ?? $service[0]['description'] ?? '' }}</p>
     </div>
 </div>
+
 
 <div class="container">
 

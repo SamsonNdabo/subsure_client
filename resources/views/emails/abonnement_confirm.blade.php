@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,15 +13,17 @@
             padding: 20px;
             color: #333;
         }
+
         .email-container {
             max-width: 600px;
             background-color: #fff;
             margin: 40px auto;
             border-radius: 10px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
             border: 1px solid #e1e4e8;
             overflow: hidden;
         }
+
         .header {
             background-color: #2a9d8f;
             padding: 30px 20px 20px 20px;
@@ -30,34 +33,40 @@
             font-weight: 700;
             letter-spacing: 1px;
         }
+
         .header img {
             max-width: 120px;
             margin-bottom: 15px;
         }
+
         .content {
             padding: 30px 40px;
             font-size: 16px;
             line-height: 1.6;
         }
+
         .content h1 {
             color: #264653;
             margin-top: 0;
             font-weight: 700;
             font-size: 24px;
         }
+
         .details-list {
             background: #f9f9f9;
             border-radius: 6px;
             padding: 20px;
             margin: 20px 0;
             list-style: none;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
         }
+
         .details-list li {
             margin-bottom: 10px;
             font-weight: 600;
             color: #2a9d8f;
         }
+
         a.btn-dashboard {
             display: inline-block;
             background-color: #e76f51;
@@ -66,14 +75,16 @@
             padding: 14px 32px;
             border-radius: 6px;
             font-weight: 600;
-            box-shadow: 0 2px 8px rgba(231,111,81,0.5);
+            box-shadow: 0 2px 8px rgba(231, 111, 81, 0.5);
             transition: background-color 0.3s ease;
             margin-top: 20px;
             font-size: 16px;
         }
+
         a.btn-dashboard:hover {
             background-color: #d65a3a;
         }
+
         .footer {
             background-color: #f1f1f1;
             padding: 20px 40px;
@@ -83,22 +94,27 @@
             margin-top: 30px;
             letter-spacing: 0.02em;
         }
+
         @media (max-width: 480px) {
             .email-container {
                 width: 90% !important;
                 margin: 20px auto;
                 padding: 0;
             }
+
             .content {
                 padding: 20px;
             }
+
             .header {
                 font-size: 22px;
                 padding: 20px 15px 15px 15px;
             }
+
             .header img {
                 max-width: 100px;
             }
+
             a.btn-dashboard {
                 padding: 12px 20px;
                 font-size: 16px;
@@ -106,12 +122,16 @@
         }
     </style>
 </head>
+
 <body>
     <div class="email-container" role="main" aria-label="Confirmation d'abonnement SubSure">
-        <div class="header">
-            <img src="{{ asset('assets/images/logo-footer.png') }}" alt="Logo SubSure" />
+        <div class="header"
+            style="background-color: #2a9d8f; padding: 30px 20px 20px 20px; text-align: center; color: #fff; font-size: 28px; font-weight: 700; letter-spacing: 1px;">
+            <img src="http://localhost/subsure.com/assets/images/logo_message.png" alt="Logo SubSure"
+                style="max-width: 120px; margin-bottom: 15px;" />
             En attente de paiement de l'abonnement
         </div>
+
         <div class="content">
             <h1>Bonjour {{ $nomClient }},</h1>
             <p>Merci pour votre abonnement au plan <strong>#{{ $planId }}</strong>.</p>
@@ -130,4 +150,5 @@
         </div>
     </div>
 </body>
+
 </html>
