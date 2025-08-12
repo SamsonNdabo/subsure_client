@@ -12,9 +12,9 @@
     
     <!-- Contenu texte -->
     <div class="position-absolute top-50 start-50 translate-middle text-center text-white px-3" 
-         style="text-white: 0 0 5px rgba(0,0,0,0.8); max-width: 90%;">
-        <h1 class="display-4 fw-bold">{{ $service['designation'] ?? $service[0]['designation'] ?? 'Service inconnu' }}</h1>
-        <p class="fs-5 fst-italic">{{ $service['description'] ?? $service[0]['description'] ?? '' }}</p>
+         style="text-white: 0 0 5px rgba(0, 0, 0, 0.8); max-width: 90%;">
+        <h1 class="display-4 fw-bold text-white ">{{ $service['designation'] ?? $service[0]['designation'] ?? 'Service inconnu' }}</h1>
+        <p class="fs-5 fst-italic text-white">Details du service</p>
     </div>
 </div>
 

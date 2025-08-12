@@ -11,7 +11,7 @@
     <a class="nav-link" href="{{ url('/clients/MesTransact/' . $client['ID_']) }}">
         <i class="icon-wallet"></i> Mes Transactions
     </a>
-    <a class="nav-link" href="{{ url('/clients/MonProfil/' . $client['ID_'])  }}">
-        <i class="icon-user"></i> Mon Profil
+<a class="nav-link" href="{{ url('/clients/MonProfil')  }}">
+            <i class="icon-user"></i> Mon Profil
     </a>
 </nav>

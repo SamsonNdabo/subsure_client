@@ -34,6 +34,7 @@ class SabonnerController extends Controller
             'interval' => 'required|integer',
             'entreprise_id' => 'required|integer',
         ]);
+        // dd($request);
 
         $plan_id = $request->input('plan_id');
         $service_id = $request->input('service_id');
@@ -42,30 +43,32 @@ class SabonnerController extends Controller
         $entreprise_id = $request->input('entreprise_id');
 
         // 1. Récupérer la liste des abonnements actuels pour cette entreprise
-        $checkResponse = Http::get($this->base_url . '/api/abonnements.php', [
-            'entreprise_id' => $entreprise_id,
-        ]);
+        // $checkResponse = Http::get($this->base_url . '/api/Mobile/abonnementClient.php', [
+        //     'entreprise_id' => $entreprise_id,
+        // ]);
+        //  dd($checkResponse->json());
 
-        if ($checkResponse->failed()) {
-            return back()->with('error', 'Impossible de vérifier les abonnements existants. Veuillez réessayer plus tard.');
-        }
+        // if ($checkResponse->failed()) {
+        //     return back()->with('error', 'Impossible de vérifier les abonnements existants. Veuillez réessayer plus tard.');
+        // }
 
-        $abonnements = $checkResponse->json();
-        if (!is_array($abonnements)) {
-            return back()->with('error', 'Réponse inattendue lors de la récupération des abonnements.');
-        }
+        // $abonnements = $checkResponse->json();
 
-        // 2. Vérifier si le client a déjà un abonnement actif/en attente sur ce plan/service
-        foreach ($abonnements as $abo) {
-            if (
-                isset($abo['idclient'], $abo['id_plan'], $abo['statut']) &&
-                $abo['idclient'] === $client['ID_'] &&
-                $abo['id_plan'] == $plan_id &&
-                in_array($abo['statut'], ['actif', 'en_attente'])
-            ) {
-                return back()->with('error', 'Vous avez déjà un abonnement actif ou en attente pour ce plan/service.');
-            }
-        }
+        // if (!is_array($abonnements)) {
+        //     return back()->with('error', 'Réponse inattendue lors de la récupération des abonnements.');
+        // }
+
+        // // 2. Vérifier si le client a déjà un abonnement actif/en attente sur ce plan/service
+        // foreach ($abonnements as $abo) {
+        //     if (
+        //         isset($abo['idclient'], $abo['id_plan'], $abo['statut']) &&
+        //         $abo['idclient'] === $client['ID_'] &&
+        //         $abo['id_plan'] == $plan_id &&
+        //         in_array($abo['statut'], ['actif', 'en_attente'])
+        //     ) {
+        //         return back()->with('error', 'Vous avez déjà un abonnement actif ou en attente pour ce plan/service.');
+        //     }
+        // }
 
         // 3. Préparer les données d’abonnement à envoyer à l’API
         $date_debut = Carbon::now()->format('Y-m-d');
@@ -86,9 +89,11 @@ class SabonnerController extends Controller
 
         $planData = [
             'id_plan'   => $plan_id,
-            'idservice' => $service_id,
+            'id_service' => $service_id,
         ];
 
+
+        // 4. Envoyer la requête POST à l’API pour créer l’abonnement
         // 4. Envoyer la requête POST à l’API pour créer l’abonnement
         $abonnementResponse = Http::post(
             $this->base_url . '/api/abonnements.php?entreprise_id=' . $entreprise_id,
@@ -105,18 +110,75 @@ class SabonnerController extends Controller
             return back()->with('error', 'Erreur lors de la création de l’abonnement : ' . $abonnementResponse->body());
         }
 
+        // ✅ 4bis. Envoyer la notification seulement si abonnement créé avec succès
+        $notificationPayload = [
+            'titre'           => 'Nouvel abonnement',
+            'message'         => 'Le client ' . $client['nom'] . ' vient de souscrire à un abonnement au service ID : ' . $service_id,
+            'type'            => 'abonnement',
+            'statut'          => 'non_lu',
+            'created_by'      => $client['ID_'],
+            'id_destinataire' => $entreprise_id,
+            'date_creation'   => Carbon::now()->format('Y-m-d H:i:s')
+        ];
+
+        $notificationResponse = Http::post(
+            $this->base_url . '/api/controller/notification/notificationController.php',
+            $notificationPayload
+        );
+
+        if (!$notificationResponse->successful()) {
+            // On ne bloque pas l'abonnement si la notif échoue, mais on log l'erreur
+            // Log::warning('Échec d\'envoi de la notification : ' . $notificationResponse->body());
+        }
+
         // 5. Envoyer un email de confirmation
-        Mail::to($client['email'])->send(new AbonnementConfirmationMail(
-            $client['nom'] ?? 'Client',
-            $plan_id,
-            $prix,
-            $date_debut,
-            $date_fin,
-            'en_attente'
-        ));
+        try {
+            Mail::to($client['email'])->send(
+                new AbonnementConfirmationMail(
+                    $client['nom'] ?? 'Client',
+                    $plan_id,
+                    $prix,
+                    $date_debut,
+                    $date_fin,
+                    'en_attente'
+                )
+            );
+        } catch (\Exception $e) {
+            // On arrête tout et on renvoie une erreur claire
+            return back()->withErrors([
+                'email' => "L'envoi de l'email de confirmation a échoué. Veuillez réessayer."
+            ]);
+        }
+
+
 
         // 6. Rediriger vers dashboard avec succès
         return redirect()->route('paiement_success')
             ->with('success', 'Votre abonnement a été créé avec succès. Un email de confirmation vous a été envoyé.');
+    }
+    public function annulerAbonnement(Request $request, $id)
+    {
+        $client = Session::get('user');
+
+        if (!$client || empty($client['ID_'])) {
+            return redirect('/logReg')->with('error', 'Veuillez vous connecter.');
+        }
+
+        $response = Http::withHeaders([
+            'Accept' => 'application/json'
+        ])->post($this->base_url . '/api/Mobile/annulerAbonnement.php', [
+            'id' => $id,
+            'statut' => 'annule'
+        ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+            if (!empty($data['success'])) {
+                return back()->with('success', 'Abonnement annulé avec succès.');
+            }
+            return back()->with('error', $data['message'] ?? 'Erreur lors de l\'annulation.');
+        }
+
+        return back()->with('error', 'Erreur serveur lors de l\'annulation de l\'abonnement.');
     }
 }

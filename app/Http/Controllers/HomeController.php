@@ -25,6 +25,7 @@ class HomeController extends Controller
 
         return view('home_', ['services' => $services]);
     }
+    
 
     /**
      * Détail d’un service
@@ -68,6 +69,7 @@ class HomeController extends Controller
         $articlesService = [];
         if (!empty($service['id'])) {
             $articlesResponse = Http::get($this->base_url . "/api/controller/article/articlecontroller.php?service_id=" . $service['id']);
+            // dd($articlesResponse ->json());
             if ($articlesResponse->successful() && $articlesResponse->json()) {
                 $articlesService = $articlesResponse->json();
             }

@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Facture - {{ $paiement['transaction_id'] }}</title>
+    <title>Facture - {{ $paiement[0]['transaction_id'] }}</title>
     <style>
         body {
             font-family: DejaVu Sans, sans-serif;
@@ -51,17 +51,17 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ public_path('images/logo.png') }}" height="50" alt="Logo">
+        <img src="{{ asset('assets/images/logo_message.png') }}" height="50" alt="Logo">
         <h2 class="title">FACTURE</h2>
     </div>
 
     <div class="row">
         <div class="client-info bordered">
             <p class="bold">Facturé à :</p>
-            <p>{{ $paiement['nom'] }}</p>
-            <p>{{ $paiement['email'] }}</p>
-            <p>{{ $paiement['telephone'] }}</p>
-            <p>{{ $paiement['adresse'] }}</p>
+            <p>{{ $paiement[0]['nom'] }}</p>
+            <p>{{ $paiement[0]['email'] }}</p>
+            <p>{{ $paiement[0]['telephone'] }}</p>
+            <p>{{ $paiement[0]['adresse'] }}</p>
         </div>
 
         <div class="company-info bordered">
@@ -73,10 +73,10 @@
     </div>
 
     <div class="facture-details mt-4 bordered">
-        <p><span class="bold">N° de facture :</span> {{ $paiement['transaction_id'] }}</p>
-        <p><span class="bold">Date de paiement :</span> {{ \Carbon\Carbon::parse($paiement['date_paiement'])->format('d/m/Y H:i') }}</p>
-        <p><span class="bold">Méthode de paiement :</span> {{ ucfirst($paiement['type_paiement']) }}</p>
-        <p><span class="bold">ID Abonnement :</span> {{ $paiement['id_abonnement'] }}</p>
+        <p><span class="bold">N° de facture :</span> {{ $paiement[0]['transaction_id'] }}</p>
+        <p><span class="bold">Date de paiement :</span> {{ \Carbon\Carbon::parse($paiement[0]['date_paiement'])->format('d/m/Y H:i') }}</p>
+        <p><span class="bold">Méthode de paiement :</span> {{ ucfirst($paiement[0]['type_paiement']) }}</p>
+        <p><span class="bold">ID Abonnement :</span> {{ $paiement[0]['id_abonnement'] }}</p>
     </div>
 
     <div class="bordered mt-4">
@@ -88,11 +88,11 @@
             </tr>
             <tr>
                 <td>Service souscrit</td>
-                <td class="text-right">{{ number_format($paiement['montant'], 2, ',', ' ') }} $</td>
+                <td class="text-right">{{ number_format($paiement[0]['montant'], 2, ',', ' ') }} $</td>
             </tr>
             <tr>
                 <td class="bold">Total</td>
-                <td class="text-right bold">{{ number_format($paiement['montant'], 2, ',', ' ') }} $</td>
+                <td class="text-right bold">{{ number_format($paiement[0]['montant'], 2, ',', ' ') }} $</td>
             </tr>
         </table>
     </div>

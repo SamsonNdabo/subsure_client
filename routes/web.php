@@ -32,12 +32,6 @@ use Illuminate\Support\Facades\Session;
 |
 */
 
-// Route::get('/checkout/{abonnement_id}', [StripeController::class, 'checkout'])->name('checkout');
-Route::post('/session', [StripeController::class, 'stripesession'])->name('stripe.session');
-
-
-Route::post('/initiate-payment', [StripeController::class, 'createPaymentIntent']);
-Route::post('/save-payment', [StripeController::class, 'savePayment']);
 
 Route::get('admin', [AuthController::class, 'login_admin']);
 Route::get('admin/logout', [AuthController::class, 'logout_admin']);
@@ -70,14 +64,19 @@ Route::get('/abonnement/success', [SabonnerController::class, 'success'])->name(
 //session client
 Route::middleware(['check.session'])->group(function () {
    
-
+Route::post('/abonnement/{id}/annuler', [SabonnerController::class, 'annulerAbonnement'])->name('abonnement.annuler');
     Route::get('/clients/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::get('/clients/contrat/pdf/{id}', [ContratController::class, 'telechargerPDF'])->name('contrat.pdf');
 
     Route::get('/clients/MesServices/{id}', [AbonnementController::class, 'listabonnement'])->name('abonnement');
     Route::get('/clients/MesTransact/{id}', [PaiementController::class, 'listpaiement']);
     Route::get('/clients/MesContrat/{id}', [ContratController::class, 'listcontrat']);
-    Route::get('/clients/MonProfil/{id}', [ProfilController::class, 'profil']);
+
+Route::post('/client/{id}/update', [ProfilController::class, 'update'])->name('client.update');
+Route::get('/clients/MonProfil', function () {
+    return view('clients.MonProfil');
+});
+
 
     Route::get('/clients/facture/{id}', [PaiementController::class, 'facture'])->name('paiement.facture');
     
@@ -86,6 +85,8 @@ Route::middleware(['check.session'])->group(function () {
     Route::get('/paiement_stripe/checkout_cancel', [CheckoutController::class, 'cancel'])->name('stripe.cancel');
     Route::get('/paiement_stripe/checkout/{client_id}/{plan_id}/{abonnement_id}/{service_id}/{prix}/{email}', [CheckoutController::class, 'checkout'])->name('stripe.checkout');
 });
+Route::get('/services/search', [App\Http\Controllers\ServicesController::class, 'search'])->name('services.search');
+
 
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.form');
 Route::post('/register', [AuthController::class, 'register'])->name('register');

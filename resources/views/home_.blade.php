@@ -144,7 +144,7 @@
                             <h5 class="card-title">Offre Essentielle</h5>
                             <p class="card-text">Gérez jusqu’à 3 services avec alertes simples. Idéale pour les
                                 particuliers.</p>
-                            <p class="text-success fs-5 fw-bold">Gratuit</p>
+                            <p class="text-success fs-5 fw-bold"></p>
                         </div>
                     </div>
 
@@ -157,7 +157,7 @@
                             <h5 class="card-title">Offre Pro</h5>
                             <p class="card-text">Gérez jusqu’à 10 services avec rappels automatiques, PDF, et support
                                 prioritaire.</p>
-                            <p class="text-primary fs-5 fw-bold">25.000 FC / Mois</p>
+                            <p class="text-primary fs-5 fw-bold"></p>
                         </div>
                     </div>
 
@@ -170,7 +170,7 @@
                             <h5 class="card-title">Offre Entreprise</h5>
                             <p class="card-text">Nombre illimité de services, tableaux de bord, utilisateurs multiples, et
                                 plus.</p>
-                            <p class="text-dark fs-5 fw-bold">Sur mesure</p>
+                            <p class="text-dark fs-5 fw-bold"></p>
                         </div>
                     </div>
                 </div>

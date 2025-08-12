@@ -26,7 +26,7 @@ class PaiementController extends Controller
     public function facture($id)
     {
         $response = Http::get($this->base_url . "/api/controller/paiement/get_paiement_by_client.php?idclient=" . $id);
-    
+
         if ($response->successful()) {
             $paiement = $response->json();
     

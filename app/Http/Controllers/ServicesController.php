@@ -22,4 +22,20 @@ class ServicesController extends Controller
 
         return view('nos_services', ['services' => $services]);
     }
+    public function search(Request $request)
+    {
+        $query = $request->input('q');
+
+        // Appel API distante pour récupérer les services correspondants
+        $response = Http::get($this->base_url . "/controller/service/search.php", [
+            'q' => $query
+        ]);
+
+        $services = $response->json();
+
+        return view('services.search', [
+            'services' => $services,
+            'query' => $query
+        ]);
+    }
 }

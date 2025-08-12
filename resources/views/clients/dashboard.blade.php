@@ -88,7 +88,7 @@
                     <i class="icon-wallet"></i> Mes Transactions
                 </a>
                 
-                <a class="nav-link" href="{{ url('/clients/MonProfil/'.$client['ID_'])  }}
+                <a class="nav-link" href="{{ url('/clients/MonProfil')  }}
 ">
                     <i class="icon-user"></i> Mon Profil
                 </a>

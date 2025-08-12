@@ -7,7 +7,7 @@
                 <ul class="top-menu">
                     <li>
                         <ul>
-                            <li><a href="tel:#"><i class="icon-phone"></i>Call: +0123 456 789</a></li>
+                            <li><a href="tel:#"><i class="icon-phone"></i>Call: +243 0993016746</a></li>
                             <li><a href="{{ url('/about') }}">About Us</a></li>
                             <li><a href="{{ url('/contact') }}">Contact Us</a></li>
                             @if (Session::has('user'))
@@ -48,10 +48,10 @@
                         <li><a href="{{ url('nos_offres') }}">Nos Offres</a></li>
                         <li><a href="{{ url('actualites') }}">Actualites</a></li>
                         @if (Session::has('user'))
-								<li><a href="{{ url('/clients/dashboard') }}">Mon Compte</a></li>
-							@else
-								<li><a href="{{ url('/register') }}">S'inscrire</a></li>
-							@endif
+                            <li><a href="{{ url('/clients/dashboard') }}">Mon Compte</a></li>
+                        @else
+                            <li><a href="{{ url('/register') }}">S'inscrire</a></li>
+                        @endif
                     </ul>
                 </nav>
             </div>
@@ -59,12 +59,11 @@
             <div class="header-right">
                 <div class="header-search">
                     <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
-                    <form action="#" method="get">
-                        <div class="header-search-wrapper">
-                            <label for="q" class="sr-only">Search</label>
-                            <input type="search" class="form-control" name="q" id="q" placeholder="Search in..."
-                                required>
-                        </div>
+                    <form action="{{ route('services.search') }}" method="GET" class="header-search-wrapper">
+                        <label for="search" class="sr-only">Recherche</label>
+                        <input type="search" class="form-control" name="q" id="search"
+                            placeholder="Rechercher un service..." value="{{ request('q') }}">
+                        <button class="btn" type="submit"></button>
                     </form>
                 </div>
             </div>
