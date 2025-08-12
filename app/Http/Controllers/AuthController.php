@@ -205,7 +205,7 @@ class AuthController extends Controller
         $request->validate(['email' => 'required|email']);
 
         try {
-            $response = Http::timeout(5)
+            $response = Http::timeout(10)
                 ->post($this->base_url . "/api/Mobile/forgetpassword.php", [
                     'email' => $request->email
                 ]);
@@ -251,6 +251,7 @@ class AuthController extends Controller
                 ]);
 
             $data = $response->json();
+            // dd($data); // Debugging line to inspect the response
 
             if ($response->successful() && ($data['status'] ?? '') === 'success') {
                 $email = $data['data']['email'] ?? null;

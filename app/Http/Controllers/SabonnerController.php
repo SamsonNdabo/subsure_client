@@ -41,35 +41,6 @@ class SabonnerController extends Controller
         $prix = $request->input('prix');
         $interval = $request->input('interval');
         $entreprise_id = $request->input('entreprise_id');
-
-        // 1. Récupérer la liste des abonnements actuels pour cette entreprise
-        // $checkResponse = Http::get($this->base_url . '/api/Mobile/abonnementClient.php', [
-        //     'entreprise_id' => $entreprise_id,
-        // ]);
-        //  dd($checkResponse->json());
-
-        // if ($checkResponse->failed()) {
-        //     return back()->with('error', 'Impossible de vérifier les abonnements existants. Veuillez réessayer plus tard.');
-        // }
-
-        // $abonnements = $checkResponse->json();
-
-        // if (!is_array($abonnements)) {
-        //     return back()->with('error', 'Réponse inattendue lors de la récupération des abonnements.');
-        // }
-
-        // // 2. Vérifier si le client a déjà un abonnement actif/en attente sur ce plan/service
-        // foreach ($abonnements as $abo) {
-        //     if (
-        //         isset($abo['idclient'], $abo['id_plan'], $abo['statut']) &&
-        //         $abo['idclient'] === $client['ID_'] &&
-        //         $abo['id_plan'] == $plan_id &&
-        //         in_array($abo['statut'], ['actif', 'en_attente'])
-        //     ) {
-        //         return back()->with('error', 'Vous avez déjà un abonnement actif ou en attente pour ce plan/service.');
-        //     }
-        // }
-
         // 3. Préparer les données d’abonnement à envoyer à l’API
         $date_debut = Carbon::now()->format('Y-m-d');
         $date_fin = Carbon::now()->addDays($interval)->format('Y-m-d');
@@ -107,7 +78,7 @@ class SabonnerController extends Controller
             if ($abonnementResponse->status() === 409) {
                 return back()->with('error', 'Vous avez déjà un abonnement actif ou en attente pour ce plan/service.');
             }
-            return back()->with('error', 'Erreur lors de la création de l’abonnement : ' . $abonnementResponse->body());
+            return back()->with('error', 'Erreur lors de la création de l’abonnement : Vous avez déjà un abonnement actif,en attente ou  expiré pour ce plan/service.');
         }
 
         // ✅ 4bis. Envoyer la notification seulement si abonnement créé avec succès

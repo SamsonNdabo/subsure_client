@@ -127,6 +127,7 @@
                                         'prix' => $item['prix'],
                                         'email' => $item['email'],
                                     ]) }}" class="btn btn-danger">Renouveler</a>
+
                                 @elseif($item['statut_abonnement'] === 'en_attente')
                                                     <a href="{{ route('stripe.checkout', [
                                         'client_id' => $item['client_id'],
@@ -146,10 +147,19 @@
                                                         </button>
                                                     </form>
 
-                                @else
-                                    {{-- Pour les autres statuts, juste un bouton fermer --}}
+                                @elseif($item['statut_abonnement'] === 'annuler')
+                                    <form action="" method="POST"
+                                    {{-- {{ route('abonnement.reactivation', $item['id_abonn']) }} --}}
+                                        class="d-inline ms-2">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-primary">
+                                            Demande de réactivation
+                                        </button>
+                                    </form>
+
                                 @endif
                             </div>
+
                         </div>
                     </div>
                 </div>
