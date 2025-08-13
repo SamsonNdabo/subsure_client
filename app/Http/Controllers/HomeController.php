@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -20,95 +21,124 @@ class HomeController extends Controller
      */
     public function home()
     {
-        $response = Http::get($this->base_url . '/api/services.php');
-        $services = $response->successful() ? $response->json() : [];
+        try {
+            $response = Http::timeout(5)->get($this->base_url . '/api/services.php');
 
-        return view('home_', ['services' => $services]);
+            if ($response->failed()) {
+                Log::error("API services.php inaccessible ou erreur : " . $response->status());
+                return view('home_', ['services' => [], 'error' => 'Impossible de charger les services.']);
+            }
+
+            $services = $response->json();
+
+            if (!is_array($services)) {
+                Log::error("Réponse API services.php invalide : " . $response->body());
+                $services = [];
+            }
+        } catch (\Exception $e) {
+            Log::error("Erreur lors de l'appel API services.php : " . $e->getMessage());
+            return view('home_', ['services' => [], 'error' => 'Service API indisponible.']);
+        }
+
+        return view('home_', compact('services'));
     }
-    
 
     /**
      * Détail d’un service
      */
     public function detailsService($id)
     {
-        // 1. Récupérer le service par son ID
-        $serviceResponse = Http::get($this->base_url . "/api/controller/service/serviceById.php?id=" . $id);
-        if (!$serviceResponse->successful() || empty($serviceResponse->json())) {
-            abort(404, 'Service introuvable.');
+        try {
+            // 1️⃣ Récupérer le service
+            $serviceResponse = Http::timeout(5)->get($this->base_url . "/api/controller/service/serviceById.php?id=" . $id);
+
+            if ($serviceResponse->failed() || empty($serviceResponse->json())) {
+                abort(404, 'Service introuvable.');
+            }
+
+            $serviceData = $serviceResponse->json();
+            $service = is_array($serviceData) && isset($serviceData[0]) ? $serviceData[0] : $serviceData;
+
+        } catch (\Exception $e) {
+            Log::error("Erreur lors de la récupération du service ID {$id} : " . $e->getMessage());
+            abort(500, 'Impossible de récupérer les données du service.');
         }
-        $serviceData = $serviceResponse->json();
 
-        // Normaliser $service en tableau associatif, pas un tableau d’éléments
-        $service = is_array($serviceData) && isset($serviceData[0]) ? $serviceData[0] : $serviceData;
-
-        // Récupérer l'entreprise liée au service
+        // 2️⃣ Récupérer l'entreprise
         $entreprise = null;
         if (!empty($service['entreprise_id'])) {
-            $entrepriseResponse = Http::get($this->base_url . "/api/controller/service/entrepriseById.php?entreprise_id=" . $service['entreprise_id']);
-            if ($entrepriseResponse->successful() && !empty($entrepriseResponse->json())) {
-                $entreprise = $entrepriseResponse->json();
+            try {
+                $entrepriseResponse = Http::timeout(5)->get($this->base_url . "/api/controller/service/entrepriseById.php?entreprise_id=" . $service['entreprise_id']);
+                if ($entrepriseResponse->successful() && !empty($entrepriseResponse->json())) {
+                    $entreprise = $entrepriseResponse->json();
+                }
+            } catch (\Exception $e) {
+                Log::warning("Impossible de récupérer l'entreprise pour le service {$id} : " . $e->getMessage());
             }
         }
 
-        // 2. Récupérer les autres services de la même entreprise
+        // 3️⃣ Autres services de la même entreprise
         $servicesEntreprise = [];
         if (!empty($service['entreprise_id'])) {
-            $entrepriseId = $service['entreprise_id'];
-            $servicesEntrepriseResponse = Http::get($this->base_url . "/api/controller/service/serviceById.php?entreprise_id=" . $entrepriseId);
-
-            if ($servicesEntrepriseResponse->successful() && $servicesEntrepriseResponse->json()) {
-                // Exclure le service courant
-                $servicesEntreprise = array_filter($servicesEntrepriseResponse->json(), function ($s) use ($id) {
-                    return $s['id'] != $id;
-                });
+            try {
+                $servicesEntrepriseResponse = Http::timeout(5)->get($this->base_url . "/api/controller/service/serviceById.php?entreprise_id=" . $service['entreprise_id']);
+                if ($servicesEntrepriseResponse->successful() && $servicesEntrepriseResponse->json()) {
+                    $servicesEntreprise = array_filter($servicesEntrepriseResponse->json(), fn($s) => $s['id'] != $id);
+                }
+            } catch (\Exception $e) {
+                Log::warning("Impossible de récupérer les autres services de l'entreprise : " . $e->getMessage());
             }
         }
 
-        // 3. Récupérer les articles liés à ce service
+        // 4️⃣ Articles liés
         $articlesService = [];
         if (!empty($service['id'])) {
-            $articlesResponse = Http::get($this->base_url . "/api/controller/article/articlecontroller.php?service_id=" . $service['id']);
-            // dd($articlesResponse ->json());
-            if ($articlesResponse->successful() && $articlesResponse->json()) {
-                $articlesService = $articlesResponse->json();
+            try {
+                $articlesResponse = Http::timeout(5)->get($this->base_url . "/api/controller/article/articlecontroller.php?service_id=" . $service['id']);
+                if ($articlesResponse->successful() && $articlesResponse->json()) {
+                    $articlesService = $articlesResponse->json();
+                }
+            } catch (\Exception $e) {
+                Log::warning("Impossible de récupérer les articles pour le service {$id} : " . $e->getMessage());
             }
         }
 
-        // 4. Récupérer tous les plans
-        $plansResponse = Http::get($this->base_url . "/api/plan_controller.php");
-        if (!$plansResponse->successful() || empty($plansResponse->json())) {
+        // 5️⃣ Plans (critique : si fail → 500)
+        try {
+            $plansResponse = Http::timeout(5)->get($this->base_url . "/api/plan_controller.php");
+            if ($plansResponse->failed() || empty($plansResponse->json())) {
+                abort(500, 'Impossible de charger les plans.');
+            }
+            $allPlans = $plansResponse->json();
+        } catch (\Exception $e) {
+            Log::error("Erreur lors de la récupération des plans : " . $e->getMessage());
             abort(500, 'Impossible de charger les plans.');
         }
-        $allPlans = $plansResponse->json();
 
-        // 5. Filtrer les plans liés à ce service
-        $plansForService = array_filter($allPlans, function ($plan) use ($id) {
-            return isset($plan['id_service']) && $plan['id_service'] == $id;
-        });
-        $plansForService = array_values($plansForService);
+        $plansForService = array_values(array_filter($allPlans, fn($plan) => isset($plan['id_service']) && $plan['id_service'] == $id));
 
-        // 6. Récupérer les avantages
-        $avantagesResponse = Http::get($this->base_url . "/api/controller/avantage/avantageController.php");
-        $avantages = $avantagesResponse->successful() ? $avantagesResponse->json() : [];
-
-        // 7. Grouper les avantages par plan_id
+        // 6️⃣ Avantages
         $avantagesParPlan = [];
-        foreach ($avantages as $av) {
-            $planId = $av['plan_id'] ?? null;
-            if ($planId) {
-                $avantagesParPlan[$planId][] = $av['avantage'];
+        try {
+            $avantagesResponse = Http::timeout(5)->get($this->base_url . "/api/controller/avantage/avantageController.php");
+            $avantages = $avantagesResponse->successful() ? $avantagesResponse->json() : [];
+            foreach ($avantages as $av) {
+                $planId = $av['plan_id'] ?? null;
+                if ($planId) {
+                    $avantagesParPlan[$planId][] = $av['avantage'];
+                }
             }
+        } catch (\Exception $e) {
+            Log::warning("Impossible de récupérer les avantages : " . $e->getMessage());
         }
 
-        // 8. Retourner la vue avec toutes les données
         return view('details', compact(
             'service',
             'plansForService',
             'avantagesParPlan',
             'servicesEntreprise',
             'articlesService',
-            'entreprise'       // ajout
+            'entreprise'
         ));
     }
 
@@ -117,7 +147,6 @@ class HomeController extends Controller
      */
     public function handlePost(Request $request, $id)
     {
-        // Ici, on pourrait ajouter un traitement selon les besoins
         return redirect()->route('details', ['id' => $id])
             ->with('success', 'Traitement effectué avec succès.');
     }

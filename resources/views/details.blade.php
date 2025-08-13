@@ -156,6 +156,7 @@
                             @foreach($articlesService as $article)
                                 <h6 class="fw-bold">{{ $article['titre'] }}</h6>
                                 <p>{{ $article['contenu'] }}</p>
+                                <img src={{ $article['lien'] }}>
                             @endforeach
                         @else
                             <p class="text-muted">Aucune condition spécifique pour ce service.</p>

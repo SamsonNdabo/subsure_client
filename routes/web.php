@@ -64,8 +64,8 @@ Route::get('/abonnement/success', [SabonnerController::class, 'success'])->name(
 //session client
 Route::middleware(['check.session'])->group(function () {
    
-Route::post('/abonnement/{id}/annuler', [SabonnerController::class, 'annulerAbonnement'])->name('abonnement.annuler');
-    Route::get('/clients/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+    Route::post('/abonnement/annuler', [AbonnementController::class, 'notificationAnnuler'])->name('abonnement.annuler');
+    Route::post('/abonnement/activer', [AbonnementController::class, 'notificationActive'])->name('abonnement.active');    Route::get('/clients/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::get('/clients/contrat/pdf/{id}', [ContratController::class, 'telechargerPDF'])->name('contrat.pdf');
 
     Route::get('/clients/MesServices/{id}', [AbonnementController::class, 'listabonnement'])->name('abonnement');

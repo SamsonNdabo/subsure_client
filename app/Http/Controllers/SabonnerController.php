@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use App\Mail\AbonnementConfirmationMail;
+use Illuminate\Support\Facades\Log;
 
 class SabonnerController extends Controller
 {
@@ -22,32 +23,30 @@ class SabonnerController extends Controller
     {
         $client = Session::get('user');
 
+        // ✅ Vérif connexion utilisateur
         if (!$client || empty($client['ID_']) || empty($client['email'])) {
             return redirect('/logReg')->with('error', 'Veuillez vous connecter.');
         }
 
-        // Validation des champs reçus via formulaire POST
+        // ✅ Validation des champs
         $request->validate([
-            'plan_id' => 'required|integer',
-            'service_id' => 'required|integer',
-            'prix' => 'required|numeric',
-            'interval' => 'required|integer',
-            'entreprise_id' => 'required|integer',
+            'plan_id'      => 'required|integer',
+            'service_id'   => 'required|integer',
+            'prix'         => 'required|numeric',
+            'interval'     => 'required|integer',
+            'entreprise_id'=> 'required|integer',
         ]);
-        // dd($request);
 
-        $plan_id = $request->input('plan_id');
-        $service_id = $request->input('service_id');
-        $prix = $request->input('prix');
-        $interval = $request->input('interval');
-        $entreprise_id = $request->input('entreprise_id');
-        // 3. Préparer les données d’abonnement à envoyer à l’API
+        $plan_id      = $request->input('plan_id');
+        $service_id   = $request->input('service_id');
+        $prix         = $request->input('prix');
+        $interval     = $request->input('interval');
+        $entreprise_id= $request->input('entreprise_id');
+
         $date_debut = Carbon::now()->format('Y-m-d');
-        $date_fin = Carbon::now()->addDays($interval)->format('Y-m-d');
+        $date_fin   = Carbon::now()->addDays($interval)->format('Y-m-d');
 
-        // Générer un ID temporaire d'abonnement (exemple : timestamp) ou null si géré côté API
-        $abonnement_id = 0;
-
+        // Données abonnement
         $abonnementData = [
             'idclient'   => $client['ID_'],
             'id_plan'    => $plan_id,
@@ -55,19 +54,17 @@ class SabonnerController extends Controller
             'date_debut' => $date_debut,
             'date_fin'   => $date_fin,
             'statut'     => 'en_attente',
-            'id'         => $abonnement_id
+            'id'         => 0
         ];
 
         $planData = [
-            'id_plan'   => $plan_id,
+            'id_plan'    => $plan_id,
             'id_service' => $service_id,
         ];
 
-
-        // 4. Envoyer la requête POST à l’API pour créer l’abonnement
-        // 4. Envoyer la requête POST à l’API pour créer l’abonnement
+        // 1️⃣ Création abonnement via API
         $abonnementResponse = Http::post(
-            $this->base_url . '/api/abonnements.php?entreprise_id=' . $entreprise_id,
+            "{$this->base_url}/api/abonnements.php?entreprise_id={$entreprise_id}",
             [
                 'abonnement' => $abonnementData,
                 'plan'       => $planData,
@@ -78,10 +75,10 @@ class SabonnerController extends Controller
             if ($abonnementResponse->status() === 409) {
                 return back()->with('error', 'Vous avez déjà un abonnement actif ou en attente pour ce plan/service.');
             }
-            return back()->with('error', 'Erreur lors de la création de l’abonnement : Vous avez déjà un abonnement actif,en attente ou  expiré pour ce plan/service.');
+            return back()->with('error', 'Erreur lors de la création de l’abonnement : Vous avez déjà un abonnement actif, en attente ou expiré a un plan de ce service.');
         }
 
-        // ✅ 4bis. Envoyer la notification seulement si abonnement créé avec succès
+        // 2️⃣ Envoi notification API
         $notificationPayload = [
             'titre'           => 'Nouvel abonnement',
             'message'         => 'Le client ' . $client['nom'] . ' vient de souscrire à un abonnement au service ID : ' . $service_id,
@@ -93,16 +90,15 @@ class SabonnerController extends Controller
         ];
 
         $notificationResponse = Http::post(
-            $this->base_url . '/api/controller/notification/notificationController.php',
+            "{$this->base_url}/api/controller/notification/notificationController.php",
             $notificationPayload
         );
 
         if (!$notificationResponse->successful()) {
-            // On ne bloque pas l'abonnement si la notif échoue, mais on log l'erreur
-            // Log::warning('Échec d\'envoi de la notification : ' . $notificationResponse->body());
+            Log::warning("Échec notification abonnement : " . $notificationResponse->body());
         }
 
-        // 5. Envoyer un email de confirmation
+        // 3️⃣ Envoi email avec gestion d'échec
         try {
             Mail::to($client['email'])->send(
                 new AbonnementConfirmationMail(
@@ -115,41 +111,11 @@ class SabonnerController extends Controller
                 )
             );
         } catch (\Exception $e) {
-            // On arrête tout et on renvoie une erreur claire
-            return back()->withErrors([
-                'email' => "L'envoi de l'email de confirmation a échoué. Veuillez réessayer."
-            ]);
+            return back()->with('error', "Paiement confirmé mais l'envoi de l'email de confirmation a échoué.");
         }
 
-
-
-        // 6. Rediriger vers dashboard avec succès
+        // 4️⃣ Succès total
         return redirect()->route('paiement_success')
             ->with('success', 'Votre abonnement a été créé avec succès. Un email de confirmation vous a été envoyé.');
-    }
-    public function annulerAbonnement(Request $request, $id)
-    {
-        $client = Session::get('user');
-
-        if (!$client || empty($client['ID_'])) {
-            return redirect('/logReg')->with('error', 'Veuillez vous connecter.');
-        }
-
-        $response = Http::withHeaders([
-            'Accept' => 'application/json'
-        ])->post($this->base_url . '/api/Mobile/annulerAbonnement.php', [
-            'id' => $id,
-            'statut' => 'annule'
-        ]);
-
-        if ($response->successful()) {
-            $data = $response->json();
-            if (!empty($data['success'])) {
-                return back()->with('success', 'Abonnement annulé avec succès.');
-            }
-            return back()->with('error', $data['message'] ?? 'Erreur lors de l\'annulation.');
-        }
-
-        return back()->with('error', 'Erreur serveur lors de l\'annulation de l\'abonnement.');
-    }
+    }   
 }
