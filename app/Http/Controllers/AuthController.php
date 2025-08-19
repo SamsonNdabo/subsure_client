@@ -103,9 +103,18 @@ class AuthController extends Controller
     /** -----------------------
      * Formulaires simples
      * ----------------------*/
-    public function showRegisterForm() { return view('register'); }
-    public function showForgotForm() { return view('forgot'); }
-    public function showResetForm($token) { return view('reset', compact('token')); }
+    public function showRegisterForm()
+    {
+        return view('register');
+    }
+    public function showForgotForm()
+    {
+        return view('forgot');
+    }
+    public function showResetForm($token)
+    {
+        return view('reset', compact('token'));
+    }
 
     /** -----------------------
      * Inscription
@@ -139,7 +148,14 @@ class AuthController extends Controller
             $data = $response->json();
 
             if ($response->successful() && ($data['status'] ?? '') === 'success') {
-                $user = $data['data'] ?? ['email' => $request->email, 'nom' => $request->nom, 'idclient' => null];
+                $user = $data['data'] ?? [
+                    'email' => $request->email,
+                    'nom' => $request->nom,
+                    'idclient' => null
+                ];
+
+                // Stocker temporairement dans une session spécifique inscription
+                Session::put('registration_user', $user);
 
                 $verificationUrl = URL::temporarySignedRoute(
                     'verification.verify',
@@ -151,6 +167,7 @@ class AuthController extends Controller
 
                 return back()->with('success', 'Inscription réussie ! Vérifiez votre email.');
             }
+
 
             return back()->with('error', 'Inscription échouée ! Email déjà utilisé.');
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
@@ -270,6 +287,36 @@ class AuthController extends Controller
             return back()->with('error', 'API distante inaccessible.');
         } catch (\Exception $e) {
             return back()->with('error', 'Erreur : ' . $e->getMessage());
+        }
+    }
+
+    /** -----------------------
+     * Renvoyer le mail de vérification
+     * ----------------------*/
+    public function resendVerificationEmail(Request $request)
+    {
+        $client = Session::get('registration_user'); // Nouvelle session
+
+        if (!$client) {
+            return redirect('/logReg')->with('error', 'Session expirée. Connectez-vous à nouveau.');
+        }
+
+        if (!empty($client['email_verified_at'])) {
+            return redirect()->route('dashboard')->with('info', 'Email déjà vérifié.');
+        }
+
+        try {
+            $verificationUrl = URL::temporarySignedRoute(
+                'verification.verify',
+                now()->addMinutes(60),
+                ['id' => $client['idclient'] ?? $client['ID_'], 'hash' => sha1($client['email'])]
+            );
+
+            Mail::to($client['email'])->send(new RegisterConfirmationMail($client, $verificationUrl));
+
+            return back()->with('success', 'Email de vérification renvoyé ! Vérifiez votre boîte mail.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Impossible d’envoyer l’email : ' . $e->getMessage());
         }
     }
 }

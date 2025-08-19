@@ -156,7 +156,8 @@
                             @foreach($articlesService as $article)
                                 <h6 class="fw-bold">{{ $article['titre'] }}</h6>
                                 <p>{{ $article['contenu'] }}</p>
-                                <img src={{ $article['lien'] }}>
+                                <img src=
+                                {{ $article['lien'] }}>
                             @endforeach
                         @else
                             <p class="text-muted">Aucune condition spécifique pour ce service.</p>
@@ -194,7 +195,7 @@
                     </div>
 
                     <div class="modal-footer px-0 border-0">
-                        <button type="submit" class="btn btn-success rounded-pill w-100 py-2 fs-5 fw-semibold">Confirmer et payer</button>
+                        <button type="submit" class="btn btn-success rounded-pill w-100 py-2 fs-5 fw-semibold">Confirmer l'abonnement</button>
                     </div>
                 </form>
             </div>

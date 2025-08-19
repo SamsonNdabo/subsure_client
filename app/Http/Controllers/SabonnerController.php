@@ -64,12 +64,13 @@ class SabonnerController extends Controller
 
         // 1️⃣ Création abonnement via API
         $abonnementResponse = Http::post(
-            "{$this->base_url}/api/abonnements.php?entreprise_id={$entreprise_id}",
+            "{$this->base_url}/api/controller/abonnement/new_abonnement.php?entreprise_id={$entreprise_id}&client_id={$client['ID_']}",
             [
                 'abonnement' => $abonnementData,
                 'plan'       => $planData,
             ]
         );
+        // dd($abonnementResponse->body());
 
         if (!$abonnementResponse->successful()) {
             if ($abonnementResponse->status() === 409) {

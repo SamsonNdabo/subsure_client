@@ -17,13 +17,13 @@
             <div class="container">
                 <div class="intro-slider owl-carousel owl-simple owl-light owl-nav-inside mb-5" data-toggle="owl"
                     data-owl-options='{
-                                "nav": true,
-                                "dots": true,
-                                "loop": true,
-                                "items": 1,
-                                "autoplay": true,
-                                "autoplayTimeout": 5000
-                            }'>
+                                    "nav": true,
+                                    "dots": true,
+                                    "loop": true,
+                                    "items": 1,
+                                    "autoplay": true,
+                                    "autoplayTimeout": 5000
+                                }'>
 
                     {{-- Slide 1 --}}
                     <div class="intro-slide position-relative" style="height: 600px; background: #000;">
@@ -32,7 +32,7 @@
 
                         <!-- Calque d'assombrissement -->
                         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                    background: rgba(0,0,0,0.4);"></div>
+                        background: rgba(0,0,0,0.4);"></div>
 
                         <div
                             class="intro-content position-absolute top-50 start-50 translate-middle text-white text-center">
@@ -49,7 +49,7 @@
                             style="object-fit: contain; object-position: center; width: 100%; height: 100%; background-color: #000;">
 
                         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                    background: rgba(0,0,0,0.4);"></div>
+                        background: rgba(0,0,0,0.4);"></div>
 
                         <div
                             class="intro-content position-absolute top-50 start-50 translate-middle text-white text-center">
@@ -65,7 +65,7 @@
                             style="object-fit: contain; object-position: center; width: 100%; height: 100%; background-color: #000;">
 
                         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                    background: rgba(0,0,0,0.4);"></div>
+                        background: rgba(0,0,0,0.4);"></div>
 
                         <div
                             class="intro-content position-absolute top-50 start-50 translate-middle text-white text-center">
@@ -90,24 +90,23 @@
 
                 <div class="owl-carousel owl-simple carousel-equal-height carousel-with-shadow" data-toggle="owl"
                     data-owl-options='{
-                                "nav": true,
-                                "dots": false,
-                                "margin": 20,
-                                "loop": false,
-                                "responsive": {
-                                    "0": {"items":1},
-                                    "576": {"items":2},
-                                    "768": {"items":3},
-                                    "992": {"items":4}
-                                }
-                            }'>
+                                    "nav": true,
+                                    "dots": false,
+                                    "margin": 20,
+                                    "loop": false,
+                                    "responsive": {
+                                        "0": {"items":1},
+                                        "576": {"items":2},
+                                        "768": {"items":3},
+                                        "992": {"items":4}
+                                    }
+                                }'>
 
                     @foreach($services as $service)
                         <div class="product product-11 text-center shadow-sm p-3 bg-light rounded-3">
                             <figure class="product-media mb-3">
                                 <a href="{{ url('/details/' . $service['id']) }}">
-                                    <img src="{{ asset('assets/images/home/home_3.png') }}" alt="Image du Service"
-                                        class="img-fluid rounded">
+                                   <img src={{ env('API_BASE_URL') . '/service_image/' .$service['image'] }}  alt="Image du Service" class="img-fluid rounded">
                                 </a>
                             </figure>
                             <div class="product-body">

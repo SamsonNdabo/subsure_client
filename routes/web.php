@@ -18,7 +18,8 @@ use App\Http\Controllers\ContratController;
 use App\Http\Controllers\PayementController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\CheckoutController;
-
+use App\Http\Controllers\GeminiService;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\SabonnerController;
 use Illuminate\Support\Facades\Session;
 /*
@@ -32,10 +33,6 @@ use Illuminate\Support\Facades\Session;
 |
 */
 
-
-Route::get('admin', [AuthController::class, 'login_admin']);
-Route::get('admin/logout', [AuthController::class, 'logout_admin']);
-Route::get('/details/{id}', [HomeController::class, 'detailsService']);
 // Routes accessibles SANS être connecté
 Route::get('/logReg', function () {
     return view('logReg');
@@ -49,6 +46,8 @@ Route::get('/nos_offres', function () {
 Route::get('/nos_offres', function () {
     return view('nos_offres');
 });
+Route::get('/resend-verification', [AuthController::class, 'resendVerificationEmail'])
+    ->name('verification.resend');
 
 Route::post('/logReg', [AuthController::class, 'login'])->name('Login');
 Route::get('/logout', function () {
@@ -60,26 +59,29 @@ Route::post('/details/{id}', [HomeController::class, 'handlePost'])->name('detai
 Route::get('/details/{id}', [HomeController::class, 'detailsService'])->name('details');
 Route::post('/abonnement/creer', [SabonnerController::class, 'creerAbonnement'])->name('abonnement.creer');
 Route::get('/abonnement/success', [SabonnerController::class, 'success'])->name('abonnements.success');
+//chat
+Route::post('/generate', [ChatController::class, 'generate'])->name('generate');
 
 //session client
 Route::middleware(['check.session'])->group(function () {
-   
+
     Route::post('/abonnement/annuler', [AbonnementController::class, 'notificationAnnuler'])->name('abonnement.annuler');
-    Route::post('/abonnement/activer', [AbonnementController::class, 'notificationActive'])->name('abonnement.active');    Route::get('/clients/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+    Route::post('/abonnement/activer', [AbonnementController::class, 'notificationActive'])->name('abonnement.active');
+    Route::get('/clients/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::get('/clients/contrat/pdf/{id}', [ContratController::class, 'telechargerPDF'])->name('contrat.pdf');
 
     Route::get('/clients/MesServices/{id}', [AbonnementController::class, 'listabonnement'])->name('abonnement');
     Route::get('/clients/MesTransact/{id}', [PaiementController::class, 'listpaiement']);
     Route::get('/clients/MesContrat/{id}', [ContratController::class, 'listcontrat']);
 
-Route::post('/client/{id}/update', [ProfilController::class, 'update'])->name('client.update');
-Route::get('/clients/MonProfil', function () {
-    return view('clients.MonProfil');
-});
+    Route::post('/client/{id}/update', [ProfilController::class, 'update'])->name('client.update');
+    Route::get('/clients/MonProfil', function () {
+        return view('clients.MonProfil');
+    });
 
 
     Route::get('/clients/facture/{id}', [PaiementController::class, 'facture'])->name('paiement.facture');
-    
+
     //stripe renouvellement 
     Route::get('/paiement_stripe/checkout_success', [CheckoutController::class, 'success'])->name('stripe.success');
     Route::get('/paiement_stripe/checkout_cancel', [CheckoutController::class, 'cancel'])->name('stripe.cancel');

@@ -32,7 +32,7 @@
 
             <div class="row align-items-center">
                 <div class="col-lg-6 order-lg-2">
-                    <img src="assets/images/home/bg.jpg" class="img-fluid rounded shadow" alt="Notre équipe">
+                    <img src="assets/images/about.png" class="img-fluid rounded shadow" alt="Notre équipe">
                 </div><!-- End .col-lg-6 -->
 
                 <div class="col-lg-6 order-lg-1">

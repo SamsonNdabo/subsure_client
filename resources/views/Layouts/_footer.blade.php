@@ -69,7 +69,7 @@
 
 						<ul class="widget-list">
 							@if (Session::has('user'))
-								<li><a href="{{ url('/clients/dasboard') }}">Mon Compte</a></li>
+								<li><a href="{{ url('/clients/dashboard') }}">Mon Compte</a></li>
 							@else
 								<li><a href="{{ url('/logReg') }}">Login</a></li>
 							@endif

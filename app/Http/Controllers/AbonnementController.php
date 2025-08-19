@@ -16,38 +16,56 @@ class AbonnementController extends Controller
         $this->base_url = env('API_BASE_URL');
     }
 
-    // 🔹 Liste des abonnements du client
+    // 🔹 Liste des abonnements avec infos entreprise dynamiques
     public function listabonnement($id)
     {
-        $data['abonnement'] = [];
-
         try {
-            $response = Http::timeout(5)->get("{$this->base_url}/api/Mobile/abonnementSuscrit.php?ID_={$id}");
-
-            if ($response->successful() && !empty($response->json())) {
-                $data['abonnement'] = $response->json();
-            } else {
-                Log::warning("API abonnements inaccessible pour client {$id}, status: " . $response->status());
+            $response = Http::timeout(10)->get($this->base_url . "/api/Mobile/abonnementSuscrit.php?ID_=" . $id);
+// dd($response->json());
+            if (!$response->successful()) {
+                return back()->with('error', 'Impossible de récupérer vos abonnements.');
             }
-        } catch (\Exception $e) {
-            Log::error("Erreur récupération abonnements client {$id} : " . $e->getMessage());
-        }
 
-        return view('clients/MesServices', $data);
+            $abonnements = $response->json()['abonnements'] ?? [];
+
+            // Récupérer les informations de toutes les entreprises distinctes liées aux abonnements
+            $entreprises = [];
+            foreach ($abonnements as $abn) {
+                $entreprise_id = $abn['entreprise_id'] ?? null; // <-- CORRECTION ICI
+                if ($entreprise_id && !isset($entreprises[$entreprise_id])) {
+                    $entrepriseResponse = Http::timeout(10)->get($this->base_url . "/api/entreprise.php?entreprise_id=" . $entreprise_id);
+                    if ($entrepriseResponse->successful()) {
+                        $entreprises[$entreprise_id] = $entrepriseResponse->json();
+                    } else {
+                        $entreprises[$entreprise_id] = null;
+                    }
+                }
+            }
+
+            // s
+
+            return view('clients.MesServices', [
+                'abonnements' => $abonnements,
+                'abonnement' => $abonnements,
+                'entreprises' => $entreprises,
+            ]);
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            return back()->with('error', 'API distante inaccessible. Vérifiez votre connexion internet.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erreur interne : ' . $e->getMessage());
+        }
     }
 
     // 🔹 Notification : annulation d'abonnement
     public function notificationAnnuler(Request $request)
     {
         $client = Session::get('user');
-        if (!$client) {
-            return back()->with('error', 'Utilisateur non authentifié.');
-        }
+        if (!$client) return back()->with('error', 'Utilisateur non authentifié.');
 
         $numAbonnement = $request->input('numAbonnement');
         $nomService    = $request->input('Nom_Service');
         $entrepriseId  = $request->input('entreprise_id');
-
+        // dd([$numAbonnement, $nomService, $entrepriseId]);
         if (!$numAbonnement || !$nomService || !$entrepriseId) {
             return back()->with('error', 'Informations manquantes pour l’envoi de la notification.');
         }
@@ -55,23 +73,20 @@ class AbonnementController extends Controller
         $message = "Le client {$client['nom']} a demandé l'annulation de son abonnement (Num: {$numAbonnement}) au service : {$nomService}";
 
         $notifSent = $this->sendNotification(
-            'Demande d\'annulation d\'abonnement',
+            "Demande d'annulation d'abonnement",
             $message,
             $client['ID_'],
             $entrepriseId
         );
 
-        $msg = $notifSent ? 'Demande d’annulation envoyée.' : 'Notification non envoyée.';
-        return back()->with($notifSent ? 'success' : 'warning', $msg);
+        return back()->with($notifSent ? 'success' : 'warning', $notifSent ? 'Demande d’annulation envoyée.' : 'Notification non envoyée.');
     }
 
     // 🔹 Notification : réactivation / paiement confirmé
     public function notificationActive(Request $request)
     {
         $client = Session::get('user');
-        if (!$client) {
-            return back()->with('error', 'Utilisateur non authentifié.');
-        }
+        if (!$client) return back()->with('error', 'Utilisateur non authentifié.');
 
         $numAbonnement = $request->input('numAbonnement');
         $nomService    = $request->input('Nom_Service');
@@ -84,17 +99,16 @@ class AbonnementController extends Controller
         $message = "Le client {$client['nom']} a demandé la réactivation de son abonnement (Num: {$numAbonnement}) au service : {$nomService}";
 
         $notifSent = $this->sendNotification(
-            'Demande de réactivation d\'abonnement',
+            "Demande de réactivation d'abonnement",
             $message,
             $client['ID_'],
             $entrepriseId
         );
 
-        $msg = $notifSent ? 'Demande de réactivation envoyée.' : 'Notification non envoyée.';
-        return back()->with($notifSent ? 'success' : 'warning', $msg);
+        return back()->with($notifSent ? 'success' : 'warning', $notifSent ? 'Demande de réactivation envoyée.' : 'Notification non envoyée.');
     }
 
-    // 🔹 Méthode pour envoyer une notification à l'API
+    // 🔹 Envoi notification
     private function sendNotification($titre, $message, $createdBy, $idDestinataire)
     {
         try {
@@ -108,12 +122,7 @@ class AbonnementController extends Controller
                 'date_creation'   => now()->format('Y-m-d H:i:s')
             ]);
 
-            if (!$notifResponse->successful()) {
-                Log::warning("Notification non envoyée, status: " . $notifResponse->status());
-                return false;
-            }
-
-            return true;
+            return $notifResponse->successful();
         } catch (\Exception $e) {
             Log::error("Erreur envoi notification : " . $e->getMessage());
             return false;

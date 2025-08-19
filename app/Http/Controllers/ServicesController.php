@@ -17,10 +17,16 @@ class ServicesController extends Controller
 
     public function services()
     {
-        $response = Http::get($this->base_url . '/api/services.php');
-        $services = $response->successful() ? $response->json() : [];
+        try {
+            $response = Http::get($this->base_url . '/api/services.php');
+            $services = $response->successful() ? $response->json() : [];
 
-        return view('nos_services', ['services' => $services]);
+            return view('nos_services', ['services' => $services]);
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            return back()->with('error', 'API distante inaccessible. Vérifiez votre connexion internet.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erreur interne : ' . $e->getMessage());
+        }
     }
     public function search(Request $request)
     {
