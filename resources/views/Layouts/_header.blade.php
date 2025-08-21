@@ -36,7 +36,7 @@
                 </button>
 
                 <a href="{{ url('/') }}" class="logo">
-                    <img src="{{ asset('assets/images/logo__.png') }}" alt="Logo Molla">
+                    <img src="{{ asset('assets/images/logo_subsure.png') }}" alt="subsure"  style="width: 120px; height: auto;">
                 </a>
             </div>
 
@@ -45,7 +45,7 @@
                     <ul class="menu sf-arrows">
                         <li class="active"><a href="{{ url('/') }}">Accueil</a></li>
                         <li><a href="{{ url('nos_services') }}">Nos Services</a></li>
-                        <li><a href="{{ url('nos_offres') }}">Nos Offres</a></li>
+                        {{-- <li><a href="{{ url('nos_offres') }}">Nos Offres</a></li> --}}
                         <li><a href="{{ url('actualites') }}">Actualites</a></li>
                         @if (Session::has('user'))
                             <li><a href="{{ url('/clients/dashboard') }}">Mon Compte</a></li>
@@ -55,7 +55,7 @@
                     </ul>
                 </nav>
             </div>
-
+{{-- 
             <div class="header-right">
                 <div class="header-search">
                     <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
@@ -66,7 +66,7 @@
                         <button class="btn" type="submit"></button>
                     </form>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </header>

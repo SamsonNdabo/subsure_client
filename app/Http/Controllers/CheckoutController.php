@@ -73,117 +73,123 @@ class CheckoutController extends Controller
 
 
     public function success(Request $request)
-    {
-        $abonnementId = $request->input('abonnement_id');
-        $prix         = $request->input('prix');
-        $email        = $request->input('email');
-        $clientId     = $request->input('client_id');
-        $planId       = $request->input('plan_id');
-        $serviceId    = $request->input('service_id');
+{
+    $abonnementId = $request->input('abonnement_id');
+    $prix         = $request->input('prix');
+    $email        = $request->input('email');
+    $clientId     = $request->input('client_id');
+    $planId       = $request->input('plan_id');
+    $serviceId    = $request->input('service_id');
 
-        // ✅ Vérification des paramètres obligatoires
-        if (!$abonnementId || !$prix || !$email || !$clientId || !$planId || !$serviceId) {
-            return view('paiement_stripe/checkout_cancel')
-                ->with('error', '❌ Données manquantes pour finaliser le paiement.');
-        }
-
-        // ID transaction unique
-        $transactionId = 'trans_' . uniqid();
-
-        $payload = [
-            'abonnement' => [
-                'id'   => (int) $abonnementId,
-                'prix' => (float) $prix,
-            ],
-            'paiement' => [
-                'type_paiement'  => 'stripe',
-                'transaction_id' => $transactionId,
-            ],
-        ];
-
-        try {
-            // 1️⃣ Confirmation du paiement auprès de l’API
-            $response = Http::timeout(30) // timeout 30s
-                ->withHeaders([
-                    'Accept'       => 'application/json',
-                    'Content-Type' => 'application/json',
-                ])->post("{$this->base_url}/api/Mobile/paiement.php", $payload);
-
-            if (!$response->successful()) {
-                return view('paiement_stripe/checkout_cancel')
-                    ->with('error', ' Paiement Stripe confirmé, mais échec du renouvellement côté serveur distant.');
-            }
-
-            $client = Session::get('user');
-
-            // 2️⃣ Récupération du service
-            $serviceResponse = Http::timeout(30)->get(
-                $this->base_url . "/api/controller/service/serviceById.php?id=" . $serviceId
-            );
-
-            if (!$serviceResponse->successful() || empty($serviceResponse->json())) {
-                return view('paiement_stripe/checkout_cancel')
-                    ->with('error', ' Service introuvable.');
-            }
-
-            $serviceData = $serviceResponse->json();
-            if (!isset($serviceData[0]['entreprise_id'])) {
-                return view('paiement_stripe/checkout_cancel')
-                    ->with('error', ' Impossible de récupérer l’entreprise du service.');
-            }
-
-            $entrepriseId = $serviceData[0]['entreprise_id'];
-
-            // 3️⃣ Notification API
-            $notifResponse = Http::timeout(30)->post(
-                $this->base_url . '/api/controller/notification/notificationController.php',
-                [
-                    'titre'           => 'Paiement d’abonnement confirmé',
-                    'message'         => 'Le client ' . ($client['nom'] ?? '') .
-                        ' a confirmé son abonnement au service : ' . ($serviceData[0]['designation'] ?? ''),
-                    'type'            => 'paiement en ligne via Stripe',
-                    'statut'          => 'non_lu',
-                    'created_by'      => $clientId,
-                    'id_destinataire' => $entrepriseId,
-                    'date_creation'   => now()->format('Y-m-d H:i:s'),
-                ]
-            );
-
-            if (!$notifResponse->successful()) {
-                return view('paiement_stripe/checkout_success')
-                    ->with('message', ' Paiement confirmé mais s la notification n’a pas pu être envoyée.');
-            }
-
-            // 4️⃣ Envoi de l’email
-            try {
-                Mail::send(
-                    'emails.payment_confirmation',
-                    [
-                        'abonnementId' => $abonnementId,
-                        'prix'         => $prix,
-                    ],
-                    function ($message) use ($email) {
-                        $message->to($email)->subject('Confirmation de paiement - SubSure');
-                    }
-                );
-            } catch (\Exception $e) {
-                return view('paiement_stripe/checkout_success')
-                    ->with('message', ' Paiement confirmé et notification envoyée, mais ❌ échec de l’envoi de l’email.');
-            }
-
-
-            return view('paiement_stripe/checkout_success')
-                ->with('message', ' Paiement réussi, abonnement renouvelé et email envoyé avec succès.');
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            // Erreur de connexion API (timeout, hôte introuvable, etc.)
-            return view('paiement_stripe/checkout_cancel')
-                ->with('error', ' Erreur de connexion au serveur distant. Merci de réessayer plus tard.');
-        } catch (\Exception $e) {
-            // Toute autre erreur
-            return view('paiement_stripe/checkout_cancel')
-                ->with('error', ' Une erreur inattendue est survenue : ' . $e->getMessage());
-        }
+    // ✅ Vérification des paramètres obligatoires
+    if (!$abonnementId || !$prix || !$email || !$clientId || !$planId || !$serviceId) {
+        return view('paiement_stripe/checkout_cancel')
+            ->with('error', '❌ Données manquantes pour finaliser le paiement.');
     }
+
+    // 🔑 Protection contre double insertion via session
+    $sessionKey = 'paiement_finalise_' . $abonnementId;
+    if (session()->has($sessionKey)) {
+        return view('paiement_stripe/checkout_success')
+            ->with('message', ' Paiement déjà enregistré pour cet abonnement.');
+    }
+
+    // ID transaction unique, stocké en session
+    $transactionId = session()->get('stripe_transaction_id_' . $abonnementId);
+    if (!$transactionId) {
+        $transactionId = 'trans_' . uniqid();
+        session()->put('stripe_transaction_id_' . $abonnementId, $transactionId);
+    }
+
+    $payload = [
+        'abonnement' => [
+            'id'   => (int) $abonnementId,
+            'prix' => (float) $prix,
+        ],
+        'paiement' => [
+            'type_paiement'  => 'stripe',
+            'transaction_id' => $transactionId,
+        ],
+    ];
+
+    try {
+        // 1️⃣ Confirmation du paiement auprès de l’API
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'Accept'       => 'application/json',
+                'Content-Type' => 'application/json',
+            ])->post("{$this->base_url}/api/Mobile/paiement.php", $payload);
+
+        if (!$response->successful()) {
+            return view('paiement_stripe/checkout_cancel')
+                ->with('error', ' Paiement Stripe confirmé, mais échec côté serveur distant.');
+        }
+
+        // Marquer paiement comme traité dans la session
+        session()->put($sessionKey, true);
+
+        $client = Session::get('user');
+
+        // 2️⃣ Récupération du service
+        $serviceResponse = Http::timeout(30)->get(
+            $this->base_url . "/api/controller/service/serviceById.php?id=" . $serviceId
+        );
+
+        if (!$serviceResponse->successful() || empty($serviceResponse->json())) {
+            return view('paiement_stripe/checkout_cancel')
+                ->with('error', ' Service introuvable.');
+        }
+
+        $serviceData = $serviceResponse->json();
+        $entrepriseId = $serviceData[0]['entreprise_id'] ?? null;
+        if (!$entrepriseId) {
+            return view('paiement_stripe/checkout_cancel')
+                ->with('error', ' Impossible de récupérer l’entreprise du service.');
+        }
+
+        // 3️⃣ Notification API
+        $notifResponse = Http::timeout(30)->post(
+            $this->base_url . '/api/controller/notification/notificationController.php',
+            [
+                'titre'           => 'Paiement d’abonnement confirmé',
+                'message'         => 'Le client ' . ($client['nom'] ?? '') .
+                    ' a confirmé son abonnement au service : ' . ($serviceData[0]['designation'] ?? ''),
+                'type'            => 'paiement en ligne via Stripe',
+                'statut'          => 'non_lu',
+                'created_by'      => $clientId,
+                'id_destinataire' => $entrepriseId,
+                'date_creation'   => now()->format('Y-m-d H:i:s'),
+            ]
+        );
+
+        // 4️⃣ Envoi de l’email
+        try {
+            Mail::send(
+                'emails.payment_confirmation',
+                [
+                    'abonnementId' => $abonnementId,
+                    'prix'         => $prix,
+                ],
+                function ($message) use ($email) {
+                    $message->to($email)->subject('Confirmation de paiement - SubSure');
+                }
+            );
+        } catch (\Exception $e) {
+            return view('paiement_stripe/checkout_success')
+                ->with('message', ' Paiement confirmé et notification envoyée, mais ❌ échec de l’envoi de l’email.');
+        }
+
+        return view('paiement_stripe/checkout_success')
+            ->with('message', ' Paiement réussi, abonnement renouvelé et email envoyé avec succès.');
+
+    } catch (\Illuminate\Http\Client\ConnectionException $e) {
+        return view('paiement_stripe/checkout_cancel')
+            ->with('error', ' Erreur de connexion au serveur distant. Merci de réessayer plus tard.');
+    } catch (\Exception $e) {
+        return view('paiement_stripe/checkout_cancel')
+            ->with('error', ' Une erreur inattendue est survenue : ' . $e->getMessage());
+    }
+}
 
     public function cancel()
     {

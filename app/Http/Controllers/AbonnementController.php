@@ -60,6 +60,7 @@ class AbonnementController extends Controller
     public function notificationAnnuler(Request $request)
     {
         $client = Session::get('user');
+        // dd($client);
         if (!$client) return back()->with('error', 'Utilisateur non authentifié.');
 
         $numAbonnement = $request->input('numAbonnement');

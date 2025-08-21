@@ -4,11 +4,13 @@
 			<div class="row">
 				<div class="col-sm-6 col-lg-3">
 					<div class="widget widget-about">
-						<img src={{ asset('assets/images/logo_footer_.png') }} class="footer-logo" alt="Footer Logo"
-							width="105" height="30">
-						<p>Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, eu vulputate magna eros
-							eu erat. </p>
-
+						<img src={{ asset('assets/images/logo_subsure.png') }} class="footer-logo" alt="Footer Logo"
+							width="105" height="auto">
+						<p>
+							Gérez vos abonnements en toute simplicité avec SubSure.
+							Suivez vos services, recevez des rappels d’expiration et
+							renouvelez en un clic grâce à notre solution sécurisée.
+						</p>
 						<div class="social-icons">
 							<a href="#" class="social-icon" title="Facebook" target="_blank"><i
 									class="icon-facebook-f"></i></a>
@@ -46,16 +48,16 @@
 								<li><a href="{{ url('/logReg') }}">Tableau de Bord</a></li>
 							@endif
 							@if (Session::has('user'))
-							@php
-								$client=Session::get('user');
-							@endphp
-							
-								<li><a href="{{ url('/clients/MesServices/'.$client['ID_']) }}">Mes Abonnements</a></li>
+								@php
+									$client = Session::get('user');
+								@endphp
+
+								<li><a href="{{ url('/clients/MesServices/' . $client['ID_']) }}">Mes Abonnements</a></li>
 							@else
 								<li><a href="{{ url('/logReg') }}">Mes Abonnements</a></li>
 							@endif
 							@if (Session::has('user'))
-								<li><a href="{{ url('/clients/MesContrat/'.$client['ID_']) }}">Mes Contrats</a></li>
+								<li><a href="{{ url('/clients/MesContrat/' . $client['ID_']) }}">Mes Contrats</a></li>
 							@else
 								<li><a href="{{ url('/logReg') }}">Mes Contrats</a></li>
 							@endif
@@ -73,7 +75,7 @@
 							@else
 								<li><a href="{{ url('/logReg') }}">Login</a></li>
 							@endif
-							
+
 							<li><a href="{{ url('/register') }}">S'inscrire</a></li>
 							<li><a href="#">Aide</a></li>
 						</ul><!-- End .widget-list -->

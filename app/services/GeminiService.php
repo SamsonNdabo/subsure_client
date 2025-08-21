@@ -4,17 +4,6 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 
 class GeminiService {
-    // Sujets autorisés pour SubSure
-    protected $allowedTopics = [
-        'abonnement',
-        'contrat',
-        'service',
-        'stripe',
-        'paiement',
-        'facture',
-        'renouvellement'
-    ];
-
     /**
      * Génère du contenu en se basant sur Gemini API pour SubSure
      * 
@@ -30,31 +19,23 @@ class GeminiService {
 
         $lowerPrompt = strtolower($prompt);
 
-        // Cas spécial : question sur SubSure
-        if (stripos($lowerPrompt, 'qu\'est') !== false && stripos($lowerPrompt, 'subsure') !== false) {
+        // Cas spécial : question directe sur SubSure
+        if (stripos($lowerPrompt, 'subsure') !== false) {
             return "SubSure est une plateforme de gestion des abonnements, contrats, services et paiements en ligne. Elle permet aux entreprises et clients de gérer leurs abonnements, suivre leurs factures, effectuer des paiements via Stripe, et renouveler leurs services facilement.";
         }
 
-        // Détecte automatiquement le sujet
-        $foundTopic = null;
-        foreach ($this->allowedTopics as $topic) {
-            if (stripos($lowerPrompt, $topic) !== false) {
-                $foundTopic = $topic;
-                break;
-            }
-        }
-
-        if (!$foundTopic) {
-            return "⚠️ Je ne peux répondre qu’aux questions liées aux abonnements, contrats, services, paiements Stripe, factures ou renouvellements.";
-        }
-
-        // Préparation du prompt pour Gemini
+        // Préparer le prompt pour Gemini avec fallback automatique
         $instruction = <<<EOT
-Tu es l'assistant de SubSure.
-⚡ Contrainte : Ne répondre que sur les sujets liés à SubSure (abonnements, contrats, services, paiements Stripe, factures, renouvellements).
-Si la question sort de ce cadre, réponds uniquement : "Je ne suis pas autorisé à répondre à cela."
+Tu es l'assistant officiel de SubSure.
+⚡ Contrainte : Répond toujours aux questions liées à SubSure, peu importe le sujet exact. 
+Tu peux répondre sur :
+- Abonnements, renouvellements, paiements Stripe, factures
+- Contrats et services
+- Comment s'abonner ou gérer son abonnement
+- Problèmes de paiement ou assistance client
+Si la question ne contient aucun mot-clé SubSure, répond quand même de manière informative dans le contexte SubSure.
+
 Fournis des réponses claires, concises et adaptées à un utilisateur de SubSure.
-Le sujet principal de cette question est : {$foundTopic}
 
 Question : {$prompt}
 EOT;
@@ -84,7 +65,7 @@ EOT;
             return "❌ Erreur API Gemini : {$response->status()} - {$response->body()}";
 
         } catch (\Exception $e) {
-            // return "❌ Exception lors de l'appel à Gemini : " . $e->getMessage();
+            return "❌ Impossible de contacter Gemini. Vérifiez votre connexion internet.";
         }
     }
 }

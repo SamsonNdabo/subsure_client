@@ -1,7 +1,7 @@
        @extends('Layouts.app')
        @section('content')
        <section class="offers-section py-5 bg-white " id="offres">
-    <div class="container text-center">
+    {{-- <div class="container text-center">
         <h3 class="mb-5 fs-2 fw-bold">Nos Offres</h3>
         <div class="row g-4">
             <!-- Offre Essentielle -->
@@ -40,7 +40,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </section>
 
 

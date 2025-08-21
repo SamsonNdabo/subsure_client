@@ -44,8 +44,8 @@
                 <div class="col-md-6">
                     <h2 class="title mb-3">Nos coordonnées</h2>
                     <ul class="contact-info list-unstyled">
-                        <li><i class="icon-map-marker"></i> 123 Avenue Technologique, Kinshasa, RDC</li>
-                        <li><i class="icon-phone"></i> +243 822 123 456</li>
+                        <li><i class="icon-map-marker"></i>Goma, RDC</li>
+                        <li><i class="icon-phone"></i> +243 993016746</li>
                         <li><i class="icon-envelope"></i> contact@subsure.cd</li>
                         <li><i class="icon-clock-o"></i> Lundi - Vendredi : 08h00 - 17h00</li>
                     </ul>

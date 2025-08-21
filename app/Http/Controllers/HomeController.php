@@ -23,7 +23,7 @@ class HomeController extends Controller
     {
         try {
             $response = Http::timeout(5)->get($this->base_url . '/api/services.php');
-
+            // dd($response->json());
             if ($response->failed()) {
                 Log::error("API services.php inaccessible ou erreur : " . $response->status());
                 return view('home_', ['services' => [], 'error' => 'Impossible de charger les services.']);

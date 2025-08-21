@@ -23,7 +23,6 @@
     @endif
 @php
     $client =Session::get('user');
-
 @endphp
     {{-- Boutons --}}
     <div class="mt-4">

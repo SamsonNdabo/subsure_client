@@ -2,17 +2,17 @@
     <div class="mobile-menu-wrapper">
         <span class="mobile-menu-close"><i class="icon-close"></i></span>
 
-        <form action="#" method="get" class="mobile-search">
+        {{-- <form action="#" method="get" class="mobile-search">
             <label for="mobile-search" class="sr-only">Search</label>
             <input type="search" class="form-control" name="mobile-search" id="mobile-search" placeholder="Search..." required>
             <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
-        </form>
+        </form> --}}
 
         <nav class="mobile-nav">
             <ul class="mobile-menu">
                 <li class="active"><a href="{{ url('/') }}">Accueil</a></li>
                 <li><a href="{{ url('/nos_services') }}">Nos Services</a></li>
-                <li><a href="{{ url('/nos_offres') }}">Nos Offres</a></li>
+                {{-- <li><a href="{{ url('/nos_offres') }}">Nos Offres</a></li> --}}
                 <li><a href="{{ url('/actualites') }}">Actualites</a></li>
                 @if (Session::has('user'))
                     <li><a href="{{ url('/clients/dashboard') }}">Mon Compte</a></li>
